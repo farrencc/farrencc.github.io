@@ -3,29 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cas</title>
+    <meta name="description" content="Casey Farren-Colloty's Personal Website">
+    <title>Casey Farren-Colloty</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> <!-- This adds mathematical functionality, for an example of use please see https://jsbin.com/?html,output -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="title-box">
-            <h1 class="neon-title">Casey Farren-Colloty</h1>
+    <header>
+        <div class="container">
+            <h1>Casey Farren-Colloty</h1>
+            <p>Theoretical Physics Student & Director </p>
         </div>
-        <h3 class="neon-subtitle">Here's a collection of projects and interesting stuff</h3>
-        <nav class="nav">
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Gallery</a>
-            <a href="#">Contact</a>
-        </nav>
-        <div class="text-box">
-            <p class="text">
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Vitae nostrum ducimus accusamus error libero nam neque nihil nesciunt. Nihil dolore sit quibusdam, obcaecati rem tempora! Porro beatae neque corporis facere!
-                <br> \(E = mc^2 \)
+    </header>
+
+    <section class="about">
+        <div class="container">
+            <h2>About Me</h2>
+            <p>
+                I'm a third-year theoretical physics student at Trinity College Dublin, passionate about teaching and research in theoretical physics. I currently serve as the Seminar Director of the Theoretical Physics Student Association and Director of The Problem Solving Association CLG. 
             </p>
         </div>
-    </div>
+    </section>
+
+    <section class="experience">
+        <div class="container">
+            <h2>Research</h2>
+            <ul>
+                <li><strong>Electoral Redistricting Project</strong> - 2023</li>
+		<p>Instiutional trust is sorely lacking in the modern western world. Too often the strategy of going over the people is employed - leading to ever compounding distrust. Ultimately this leads to a sorely disfunctioning society. So then we ask, <em> what can we do to fix the situation?</em> Towards finding an answer, the TPSA ran a <a href = 'https://www.maths.tcd.ie/~tristan/SSG/index.html'>hackathon </a> in May of 2023 alongside TCD's School of Maths. Following on from the results of this, I developed a genetic algorithm to redistrict electoral constituencies in Ireland. This was part of a two-prong approach alongside a physics-based algorithm pioneered by Ruaidhrí Campion. This problem is being further examined via The Problem Solving Association CLG.</p>
+		<br>
+                <li><strong>Oxford University Internship</strong> - Summer 2024</li>
+		<p>I was lucky enough to be given the opportunity to participate in the <a href="https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research">Rudolf Peierls Centre for Theoretical Physics UROP</a> at Oxford University. I got to research Renormalon effects on a specific class of observables found in <span id="latex">\( e^- e^+  \)</span> annihilation events under Prof. Gavin P. Salam FRS, Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli. These observables, known as <a href="https://arxiv.org/abs/hep-ph/0312283">event shape observables</a> yield information into the geometry of the event taking place. I used the <a href="https://gitlab.com/panscales/panscales-0.X">software</a> to simulate electron positron annihilation to quark anti-quark pair events as well as corrections involving soft gluons and gluers to analyse the change in those event shapes.</p>
+		<br>
+		<li><strong>Quantum Hall Effect Notes</strong></li>
+		<p>The Quantum Hall Effect, for whatever reason, has intensely piqued my curiosity. In trying to better understand the phenomenon, I've begun reading <a href = "https://arxiv.org/abs/cond-mat/9907002">The Quantum Hall Effect: Novel Excitations and Broken Symmetries by Steven M. Girvin</a>. Though, I have yet to fully write up notes covering it, I have decided to upload some <b>rough</b> notes. Which can be found <a href="https://www.overleaf.com/read/ztvqsvkjhzft#156348">here</a>. </p>
+            </ul>
+        </div>
+    </section>
+
+    <section class="teaching">
+        <div class="container">
+            <h2>Teaching</h2>
+	    <p>I'm a firm believer of the importance of putting effort in to show the younger generation how interesting the world of science can be. As well as to show them that participating in this world is an achievable goal. The opportunity arose in the academic year 2023/24 to do just that and teach at the Centre for Talented Youth Ireland. Specifically, the 8-12 year old course. Here are some of the materials for these courses:   </p>
+	    <br>
+            <ul>
+                <li><a href="https://github.com/farrencc/ctyi_superhero_science" target="_blank">Superhero Science</a> (Autumn)</li>
+                <li><a href="https://github.com/farrencc/ctyi_astronomy" target="_blank">Astronomy</a> (Spring)</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="links">
+        <div class="container">
+            <h2>Relevant Links</h2>
+            <ul>
+                <li><a href="http://tpsa.ie/homepage" target="_blank">Theoretical Physics Student Association</a></li>
+                <li><a href="http://tpsa.ie/problemsolving" target="_blank">The Problem Solving Association CLG</a></li>
+                <li><a href="https://github.com/farrencc" target="_blank">GitHub Profile</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+		<p> Casey Farren-Colloty | <a href="mailto:casey@tpsa.ie" style="color:white">Email</a> <p>
+        </div>
+    </footer>
 </body>
 </html>
+
