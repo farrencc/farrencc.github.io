@@ -3,73 +3,674 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Casey Farren-Colloty's Personal Website">
+    <meta name="description" content="Theoretical Physics Student Portfolio">
     <title>Casey Farren-Colloty</title>
-    <link rel="stylesheet" href="styles.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>Casey Farren-Colloty</h1>
-            <p>Theoretical Physics Student & Director </p>
-        </div>
-    </header>
+<style>
+:root {
+    --primary-red: #d64045;
+    --light-pink: #ff9eaa;
+    --off-white: #f7f7f2;
+    --dark-red: #851d41;
+    --text-dark: #2d232e;
+}
 
-    <section class="about">
-        <div class="container">
-            <h2>About Me</h2>
-            <p>
-                I'm a third-year theoretical physics student at Trinity College Dublin, passionate about teaching and research in theoretical physics. I currently serve as the Seminar Director of the Theoretical Physics Student Association and Director of The Problem Solving Association CLG. 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--off-white);
+    color: var(--text-dark);
+    line-height: 1.6;
+    padding-top: 60px;
+}
+
+/* Navigation */
+
+nav {
+    background-color: var(--primary-red);
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 2rem;
+}
+
+nav a {
+    color: var(--off-white);
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: all 0.3s ease;
+}
+
+nav a::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--light-pink);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+nav a:hover {
+    color: var(--light-pink);
+    transform: translateY(-2px);
+}
+
+nav a:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+nav a:active {
+    transform: translateY(1px);
+}
+
+.name-header {
+    background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+    color: var(--off-white);
+    padding: 4rem 2rem;
+    margin-top: 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.name-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.full-name {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.nickname {
+    font-size: 1.5rem;
+    opacity: 0.9;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.highlight {
+    color: var(--light-pink);
+    font-weight: bold;
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.highlight:hover {
+    transform: scale(1.1);
+}
+
+.social-links-header {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+.social-link {
+    color: var(--off-white);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.social-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.social-link:active {
+    transform: translateY(1px);
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Main Content */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+section {
+    margin: 6rem 0;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+a {
+    color: var(--off-white); /* White by default */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:visited {
+    color: var(--light-pink); /* Light pink after being visited */
+    opacity: 0.9; /* Optional: slightly fade the visited links */
+}
+
+/* For social links in header */
+.social-link {
+    color: var(--off-white) !important; /* White by default */
+    /* ... other existing styles ... */
+}
+
+.social-link:visited {
+    color: var(--light-pink) !important; /* Light pink after being visited */
+    opacity: 0.9;
+}
+
+/* Featured Quote/Equation Card */
+.featured-card {
+    background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+    color: var(--off-white);
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 4rem 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.featured-card:hover {
+    transform: translateY(-5px);
+}
+
+.featured-card h2 {
+    font-size: 2rem;
+    margin-bottom: 0.1rem;
+    text-align: left;
+    color: var(--off-white);
+    font-size: 2.2rem;
+}
+
+/* Research Section - Updated for Vertical Tiling */
+.research-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.research-item {
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.research-item:hover {
+    transform: translateX(10px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.research-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.research-title h3 {
+    color: var(--primary-red);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.research-expand-icon {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.research-expand-icon::before,
+.research-expand-icon::after {
+    content: '';
+    position: absolute;
+    background-color: var(--primary-red);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.research-expand-icon::before {
+    width: 2px;
+    height: 16px;
+    top: 4px;
+    left: 11px;
+}
+
+.research-expand-icon::after {
+    width: 16px;
+    height: 2px;
+    top: 11px;
+    left: 4px;
+}
+
+.research-item.expanded .research-expand-icon::before {
+    transform: rotate(90deg);
+    opacity: 0;
+}
+
+.research-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+}
+
+.research-item.expanded .research-content {
+    max-height: 500px;
+    opacity: 1;
+}
+
+.research-details {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    margin-top: 0.5rem;
+}
+
+.research-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.research-tag {
+    background-color: var(--light-pink);
+    color: var(--dark-red);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+}
+
+/* Teaching Materials Grid */
+section h1, section h2 {
+    text-align: left;
+    color: var(--primary-red);
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+}
+
+.section-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem auto;
+    max-width: 1000px;
+}
+
+.material-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.material-card:hover {
+    transform: translateY(-5px);
+}
+
+
+/* Footer */
+footer {
+    background-color: var(--dark-red);
+    color: var(--off-white);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-links a {
+    color: var(--off-white);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: var(--light-pink);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    nav ul {
+        gap: 1rem;
+    }
+    .materials-grid {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        gap: 1rem;
+    }
+    
+    section h1, section h2 {
+        font-size: 1.8rem;
+    }
+    
+    .section-content {
+        padding: 0 1rem;
+    }
+}
+</style>
+
+<nav>
+    <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#teaching">Teaching</a></li>
+        <li><a href="#links">Links</a></li>
+    </ul>
+</nav>
+
+<div class="name-header">
+    <div class="name-container">
+        <h1 class="full-name">Casey Farren-Colloty</h1>
+        <p class="nickname">Hi, my name is Casey although most people call me <span class="highlight">Cas</span></p>
+    </div>
+    <div class="social-links-header">
+        <a href="https://github.com/yourusername" class="social-link github" target="_blank">
+            <span class="social-icon">GitHub</span>
+        </a>
+        <a href="https://linkedin.com/in/yourusername" class="social-link linkedin" target="_blank">
+            <span class="social-icon">LinkedIn</span>
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <section id="featured">
+        <div class="featured-card">
+            <h2>Favourite Equation / Quote at the Moment</h2>
+            <!-- <div id="equation">
+                \[ i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi \]
+	    </div> -->
+	    <div id="equation">
+		    <b>"...these lectures are about as theoretical as they come. We're not actually going to measure anything. Just pretend."</b> - <i><a href="http://www.damtp.cam.ac.uk/user/tong/qhe/qhe.pdf">David Tong</a></i>
+		<p class="equation-description">
+            There is an argument to be made that physics is at risk of becoming far too overly specialised. Indeed, this has been becoming a problem since the days of Fermi - as the last physicist to be considered both an experimentalist and a theorist. Though perhaps the advent of computational physics, allowing us to test theory in a way that was previously impossible, will allow for a new generation of physicists to be both theorists and pseudo-experimentalists. But this quote is also just funny.
             </p>
         </div>
     </section>
 
-    <section class="experience">
-        <div class="container">
-            <h2>Research</h2>
-            <ul>
-                <li><strong>Electoral Redistricting Project</strong> - 2023</li>
-		<p>Instiutional trust is sorely lacking in the modern western world. Too often the strategy of going over the people is employed - leading to ever compounding distrust. Ultimately this leads to a sorely disfunctioning society. So then we ask, <em> what can we do to fix the situation?</em> Towards finding an answer, the TPSA ran a <a href = 'https://www.maths.tcd.ie/~tristan/SSG/index.html'>hackathon </a> in May of 2023 alongside TCD's School of Maths. Following on from the results of this, I developed a genetic algorithm to redistrict electoral constituencies in Ireland. This was part of a two-prong approach alongside a physics-based algorithm pioneered by Ruaidhrí Campion. This problem is being further examined via The Problem Solving Association CLG.</p>
-		<br>
-                <li><strong>Oxford University Internship</strong> - Summer 2024</li>
-		<p>I was lucky enough to be given the opportunity to participate in the <a href="https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research">Rudolf Peierls Centre for Theoretical Physics UROP</a> at Oxford University. I got to research Renormalon effects on a specific class of observables found in <span id="latex">\( e^- e^+  \)</span> annihilation events under Prof. Gavin P. Salam FRS, Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli. These observables, known as <a href="https://arxiv.org/abs/hep-ph/0312283">event shape observables</a> yield information into the geometry of the event taking place. I used the <a href="https://gitlab.com/panscales/panscales-0.X">software</a> to simulate electron positron annihilation to quark anti-quark pair events as well as corrections involving soft gluons and gluers to analyse the change in those event shapes.</p>
-		<br>
-		<li><strong>Quantum Hall Effect Notes</strong></li>
-		<p>The Quantum Hall Effect, for whatever reason, has intensely piqued my curiosity. In trying to better understand the phenomenon, I've begun reading <a href = "https://arxiv.org/abs/cond-mat/9907002">The Quantum Hall Effect: Novel Excitations and Broken Symmetries by Steven M. Girvin</a>. Though, I have yet to fully write up notes covering it, I have decided to upload some <b>rough</b> notes. Which can be found <a href="https://www.overleaf.com/read/ztvqsvkjhzft#156348">here</a>. </p>
-            </ul>
+    <section id="about">
+        <h1>About Me</h1>
+        <p>
+           "I'm a third-year theoretical physics student at Trinity College Dublin, driven by a deep curiosity to understand the fundamental principles that govern our universe as well as the application of those principles to the broader human society. I find areas that offer both profound insights into nature's workings and practical applications for a sustainable future particularly engaging.
+Beyond research, I'm passionate about making science accessible to everyone. As Seminar Director of the <a href="https://www.tpsa.ie/homepage">Theoretical Physics Student Association of Ireland</a> and Director of <a href="https://tpsa.ie/problemsolving">The Problem Solving Association CLG</a>, I'm involved in initiatives in science communication and education. From creating physics lecture series and teaching at the <a href="https://www.dcu.ie/ctyi">Centre for Talented Youth (CTYI)</a> to working on projects furthering democratic society through utilising physics-based techniques, I believe in sharing the problem-solving mindset of theoretical physics to address challenges across disciplines.
+        </p>
+    </section>
+
+    <section id="research">
+        <h2>Research</h2>
+        <div class="research-container">
+
+    <div class="research-item" onclick="toggleResearch(this)">
+        <div class="research-title">
+            <h3>2024 - Oxford University Internship</h3>
+            <div class="research-expand-icon"></div>
+        </div>
+        <div class="research-content">
+            <div class="research-details">
+                <p>Selected for the prestigious <a href="https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research" target="_blank">Rudolf Peierls Centre for Theoretical Physics UROP</a>, I investigated Renormalon effects in particle physics. Working under Prof. Gavin P. Salam FRS, Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli, I studied \( e^- e^+ \) annihilation events. My research focused on <a href="https://arxiv.org/abs/hep-ph/0312283" target="_blank">event shape observables</a>, using the <a href="https://gitlab.com/panscales/panscales-0.X" target="_blank">PanScales</a> software to simulate electron-positron annihilation and analyze geometric properties of quark anti-quark pair events, including corrections for soft gluons and gluers.</p>
+                <div class="research-tags">
+                    <span class="research-tag">Particle Physics</span>
+                    <span class="research-tag">Quantum Field Theory</span>
+                    <span class="research-tag">Numerical Methods</span>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- 
+    <div class="research-item" onclick="toggleResearch(this)">
+        <div class="research-title">
+            <h3>2024 - Quantum Hall Effect Study</h3>
+            <div class="research-expand-icon"></div>
+        </div>
+        <div class="research-content">
+            <div class="research-details">
+                <p>A self-directed exploration into quantum many-body physics, focusing on the fascinating phenomena of the Quantum Hall Effect. Based on my study of <a href="https://arxiv.org/abs/cond-mat/9907002" target="_blank">The Quantum Hall Effect: Novel Excitations and Broken Symmetries</a> by Steven M. Girvin, I've developed comprehensive notes examining this remarkable manifestation of quantum mechanics in condensed matter systems. My working notes are available <a href="https://www.overleaf.com/read/ztvqsvkjhzft#156348" target="_blank">here</a>, documenting my ongoing investigation into this fundamental aspect of quantum physics.</p>
+                <div class="research-tags">
+                    <span class="research-tag">Quantum Mechanics</span>
+                    <span class="research-tag">Condensed Matter</span>
+                    <span class="research-tag">Many-Body Physics</span>
+                </div>
+            </div>
+        </div>
+    </div> -->
+        <div class="research-item" onclick="toggleResearch(this)">
+        <div class="research-title">
+            <h3>2023 - Electoral Redistricting Project</h3>
+            <div class="research-expand-icon"></div>
+        </div>
+        <div class="research-content">
+            <div class="research-details">
+                <p>Democratic systems face a growing crisis of trust. This project tackles the challenge of fair electoral redistricting using computational methods from physics. Following a successful <a href="https://www.maths.tcd.ie/~tristan/SSG/index.html" target="_blank">hackathon</a> organized by TPSA and TCD's School of Mathematics, I developed a genetic algorithm approach to redistribute Irish electoral constituencies. This complemented a physics-based algorithm developed by <a href="https://www.maths.tcd.ie/~rcampion/">Ruaidhrí Campion</a>, forming a comprehensive dual approach to electoral fairness. The work continues through The Problem Solving Association CLG, aiming to restore institutional trust through transparent, algorithmic solutions.</p>
+                <div class="research-tags">
+                    <span class="research-tag">Computational Physics</span>
+                    <span class="research-tag">Social Systems</span>
+                    <span class="research-tag">Algorithmic Design</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
     </section>
 
-    <section class="teaching">
+    <section id="teaching">
         <div class="container">
-            <h2>Teaching</h2>
-	    <p>I'm a firm believer of the importance of putting effort in to show the younger generation how interesting the world of science can be. As well as to show them that participating in this world is an achievable goal. The opportunity arose in the academic year 2023/24 to do just that and teach at the Centre for Talented Youth Ireland. Specifically, the 8-12 year old course. Here are some of the materials for these courses:   </p>
-	    <br>
-            <ul>
-                <li><a href="https://github.com/farrencc/ctyi_superhero_science" target="_blank">Superhero Science</a> (Autumn)</li>
-                <li><a href="https://github.com/farrencc/ctyi_astronomy" target="_blank">Astronomy</a> (Spring)</li>
-            </ul>
+    <h2>Teaching</h2>
+    <p>I'm a firm believer of the importance of putting effort in to show the younger generation how interesting the world of science can be. As well as to show them that participating in this world is an achievable goal. The opportunity arose in the academic year 2023/24 to do just that and teach at the Centre for Talented Youth Ireland. Specifically, the 8-12 year old course. Here are some of the materials for these courses: </p>
+    <div class="section-content">
+        <div class="materials-grid">
+            <div class="material-card">
+                <h3>Superhero Science</h3>
+                <p>Introduction to a variety of topics in science and engineering such as magnetism, genetics, and material science.</p>
+                <a href="https://github.com/farrencc/ctyi_superhero_science">View Course Materials →</a>
+            </div>
+            <div class="material-card">
+                <h3>Astronomy</h3>
+                <p>Fundamentals of astronomy and related areas of physics. Topics included: Special / General Relativity, Stars, Galaxies, Stellar Evolution, and Rockets.</p>
+                <a href="https://github.com/farrencc/ctyi_astronomy">View Course Materials →</a>
+            </div>
         </div>
-    </section>
+    </div></div>
+</section>
 
-    <section class="links">
-        <div class="container">
-            <h2>Relevant Links</h2>
-            <ul>
-                <li><a href="http://tpsa.ie/homepage" target="_blank">Theoretical Physics Student Association</a></li>
-                <li><a href="http://tpsa.ie/problemsolving" target="_blank">The Problem Solving Association CLG</a></li>
-                <li><a href="https://github.com/farrencc" target="_blank">GitHub Profile</a></li>
-            </ul>
+<section id="links">
+    <div class="container">
+        <h2>Relevant Links</h2>
+    <div class="section-content">
+        <div class="materials-grid">
+            <div class="material-card">
+                <h3>GitHub</h3>
+                <p>Access my research code, teaching materials, and personal projects.</p>
+                <a href="https://github.com/farrencc" target="_blank">Visit Profile →</a>
+            </div>
+            <div class="material-card">
+                <h3>The TPSA</h3>
+                <p>Learn more about our current projects and more. Both from the Student Association and Non-Profit.</p>
+                <a href="https://www.tpsa.ie" target="_blank">Visit Page →</a>
+            </div>
         </div>
-    </section>
+    </div>
+    </div>
+</section>
+<footer>
+    <p>© 2024 Casey Farren-Colloty | Theoretical Physics Student and Non-Profit Director</p>
+    <div class="social-links">
+        <a href="mailto:casey@tpsa.ie">Email</a>
+        <a href="https://github.com/farrencc" target="_blank">GitHub</a>
+    </div>
+</footer>
 
-    <footer>
-        <div class="container">
-		<p> Casey Farren-Colloty | <a href="mailto:casey@tpsa.ie" style="color:white">Email</a> <p>
-        </div>
-    </footer>
+<script>
+// Smooth scrolling
+document.querySelectorAll('nav a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const section = document.querySelector(this.getAttribute('href'));
+        section.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver(
+    (entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    },
+    { threshold: 0.1 }
+);
+
+document.querySelectorAll('section').forEach(section => {
+    observer.observe(section);
+});
+
+// Research section expansion
+function toggleResearch(element) {
+    element.classList.toggle('expanded');
+    
+    const content = element.querySelector('.research-content');
+    
+    if (element.classList.contains('expanded')) {
+        content.style.opacity = '0';
+        setTimeout(() => {
+            content.style.opacity = '1';
+        }, 50);
+    }
+    
+    // Close other expanded items
+    const allItems = document.querySelectorAll('.research-item');
+    allItems.forEach(item => {
+        if (item !== element && item.classList.contains('expanded')) {
+            item.classList.remove('expanded');
+        }
+    });
+}
+
+// Featured equation rotation (if needed)
+const equations = [
+    {
+        eq: '\\[ i\\hbar\\frac{\\partial}{\\partial t}\\Psi = \\hat{H}\\Psi \\]',
+        description: 'The Schrödinger equation: Nature\'s way of telling us how quantum systems evolve.'
+    },
+    {
+        eq: '\\[ E = mc^2 \\]',
+        description: 'Einstein\'s mass-energy equivalence: The most famous equation in physics.'
+    },
+    {
+        eq: '\\[ F_{\\mu\\nu} = \\partial_{\\mu}A_{\\nu} - \\partial_{\\nu}A_{\\mu} \\]',
+        description: 'The electromagnetic field tensor: Encoding the dance of electricity and magnetism.'
+    }
+];
+
+// Uncomment to enable equation rotation
+// setInterval(() => {
+//     const index = Math.floor(Math.random() * equations.length);
+//     document.getElementById('equation').innerHTML = equations[index].eq;
+//     document.querySelector('.equation-description').textContent = equations[index].description;
+//     MathJax.typeset();
+// }, 10000);
+</script>
 </body>
 </html>
-
