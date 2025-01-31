@@ -29,14 +29,15 @@ body {
     background-color: var(--off-white);
     color: var(--text-dark);
     line-height: 1.6;
-    padding-top: 60px;
+    margin-top: 0;
+    padding-top: 0;
 }
 
 /* Navigation */
 
 nav {
     background-color: var(--primary-red);
-    padding: 1rem;
+    padding: 1.5rem;
     position: fixed;
     width: 100%;
     top: 0;
@@ -202,14 +203,18 @@ section {
 }
 
 a {
-    color: var(--off-white); /* White by default */
+    color: var(--primary-red); /* White by default */
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-a:visited {
+a:hover {
     color: var(--light-pink); /* Light pink after being visited */
     opacity: 0.9; /* Optional: slightly fade the visited links */
+}
+
+a::after {
+    color: var(--dark-red)
 }
 
 /* For social links in header */
@@ -244,6 +249,15 @@ a:visited {
     text-align: left;
     color: var(--off-white);
     font-size: 2.2rem;
+}
+
+.featured-card a {
+    color: var(--off-white);
+    transition: color 0.3s ease;
+}
+
+.featured-card a:hover {
+    color: var(--light-pink);
 }
 
 /* Research Section - Updated for Vertical Tiling */
@@ -480,7 +494,7 @@ footer {
                 \[ i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi \]
 	    </div> -->
 	    <div id="equation">
-		    <b>"...these lectures are about as theoretical as they come. We're not actually going to measure anything. Just pretend."</b> - <i><a href="http://www.damtp.cam.ac.uk/user/tong/qhe/qhe.pdf">David Tong</a></i>
+		    <b>"...these lectures are about as theoretical as they come. We're not actually going to measure anything. Just pretend."</b> - <i><a target="_blank" href="http://www.damtp.cam.ac.uk/user/tong/qhe/qhe.pdf">David Tong</a></i>
 		<p class="equation-description">
             There is an argument to be made that physics is at risk of becoming far too overly specialised. Indeed, this has been becoming a problem since the days of Fermi - as the last physicist to be considered both an experimentalist and a theorist. Though perhaps the advent of computational physics, allowing us to test theory in a way that was previously impossible, will allow for a new generation of physicists to be both theorists and pseudo-experimentalists. But this quote is also just funny.
             </p>
@@ -491,7 +505,7 @@ footer {
         <h1>About Me</h1>
         <p>
            "I'm a third-year theoretical physics student at Trinity College Dublin, driven by a deep curiosity to understand the fundamental principles that govern our universe as well as the application of those principles to the broader human society. I find areas that offer both profound insights into nature's workings and practical applications for a sustainable future particularly engaging.
-Beyond research, I'm passionate about making science accessible to everyone. As Seminar Director of the <a href="https://www.tpsa.ie/homepage">Theoretical Physics Student Association of Ireland</a> and Director of <a href="https://tpsa.ie/problemsolving">The Problem Solving Association CLG</a>, I'm involved in initiatives in science communication and education. From creating physics lecture series and teaching at the <a href="https://www.dcu.ie/ctyi">Centre for Talented Youth (CTYI)</a> to working on projects furthering democratic society through utilising physics-based techniques, I believe in sharing the problem-solving mindset of theoretical physics to address challenges across disciplines.
+Beyond research, I'm passionate about making science accessible to everyone. As Seminar Director of the <a target="_blank" href="https://tpsa.ie/homepage">Theoretical Physics Student Association of Ireland</a> and Director of <a target="_blank" href="https://tpsa.ie/problemsolving">The Problem Solving Association CLG</a>, I'm involved in initiatives in science communication and education. From creating physics lecture series and teaching at the <a target="_blank" href="https://www.dcu.ie/ctyi">Centre for Talented Youth (CTYI)</a> to working on projects furthering democratic society through utilising physics-based techniques, I believe in sharing the problem-solving mindset of theoretical physics to address challenges across disciplines.
         </p>
     </section>
 
