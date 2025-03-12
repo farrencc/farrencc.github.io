@@ -1,0 +1,204 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{braket}
+\usepackage{bbold}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathtools}
+\usepackage[thinc]{esdiff}
+\usepackage{bigints}
+\usepackage{enumerate}
+\usepackage{wasysym}
+\usepackage{pythonhighlight}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{esint}
+% \usepackage[top=1in,bottom=1in,left=1in,right=in]{geometry}
+\usepackage{mathtools}
+\usepackage{cancel}
+\usepackage{hyperref}
+\usepackage{mathrsfs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\DeclareMathOperator{\arccosh}{arcCosh}
+\DeclareMathOperator{\arcsinh}{arcsinh}
+\DeclareMathOperator{\arctanh}{arctanh}
+\DeclareMathOperator{\arcsech}{arcsech}
+\DeclareMathOperator{\arccsch}{arcCsch}
+\DeclareMathOperator{\arccoth}{arcCoth}
+\renewcommand{\vec}{\mathbf}
+\newcommand{\gvec}{\boldsymbol}
+\newenvironment{claim}[1]{\par\noindent\underline{Claim:}\space#1}{}
+\newenvironment{claimproof}[1]{\par\noindent\underline{Proof:}\space#1}{\hfill $\blacksquare$}
+\makeatletter
+\def\@seccntformat#1{%
+  \expandafter\ifx\csname c@#1\endcsname\c@section\else
+  \csname the#1\endcsname\quad
+  \fi}
+\def\@seccntformat#1{%
+  \expandafter\ifx\csname c@#1\endcsname\c@subsection\else
+  \csname the#1\endcsname\quad
+  \fi}
+\let\latexl@section\l@section
+\def\l@section#1#2{\begingroup\let\numberline\@gobble\latexl@section{#1}{#2}\endgroup}
+\let\latexl@subsection\l@subsection
+\def\l@subsection#1#2{\begingroup\let\numberline\@gobble\latexl@subsection{#1}{#2}\endgroup}
+\makeatother
+\newcommand{\dbar}{d\hspace*{-0.08em}\bar{}\hspace*{0.1em}}
+\title{}
+\author{Casey Farren-Colloty (21365022)}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{itemize}
+% \tightlist
+\item
+  \hyperref[about]{About}
+\item
+  \hyperref[research]{Research}
+\item
+  \hyperref[teaching]{Teaching}
+\item
+  \hyperref[links]{Links}
+\end{itemize}
+
+\section{Casey Farren-Colloty}\label{casey-farren-colloty}
+
+Hi, my name is Casey although most people call me {Cas}
+
+\href{https://github.com/yourusername}{{GitHub}}
+\href{https://linkedin.com/in/yourusername}{{LinkedIn}}
+
+\phantomsection\label{featured}
+\subsection{Favourite Equation / Quote at the
+Moment}\label{favourite-equation-quote-at-the-moment}
+
+\phantomsection\label{equation}
+\textbf{"...these lectures are about as theoretical as they come.
+We\textquotesingle re not actually going to measure anything. Just
+pretend."} -
+\emph{\href{http://www.damtp.cam.ac.uk/user/tong/qhe/qhe.pdf}{David
+Tong}}
+
+There is an argument to be made that physics is at risk of becoming far
+too overly specialised. Indeed, this has been becoming a problem since
+the days of Fermi - as the last physicist to be considered both an
+experimentalist and a theorist. Though perhaps the advent of
+computational physics, allowing us to test theory in a way that was
+previously impossible, will allow for a new generation of physicists to
+be both theorists and pseudo-experimentalists. But this quote is also
+just funny.
+
+\phantomsection\label{about}
+\section{About Me}\label{about-me}
+
+"I\textquotesingle m a third-year theoretical physics student at Trinity
+College Dublin, driven by a deep curiosity to understand the fundamental
+principles that govern our universe as well as the application of those
+principles to the broader human society. I find areas that offer both
+profound insights into nature\textquotesingle s workings and practical
+applications for a sustainable future particularly engaging. Beyond
+research, I\textquotesingle m passionate about making science accessible
+to everyone. As Seminar Director of the
+\href{https://www.tpsa.ie/homepage}{Theoretical Physics Student
+Association of Ireland} and Director of
+\href{https://tpsa.ie/problemsolving}{The Problem Solving Association
+CLG}, I\textquotesingle m involved in initiatives in science
+communication and education. From creating physics lecture series and
+teaching at the \href{https://www.dcu.ie/ctyi}{Centre for Talented Youth
+(CTYI)} to working on projects furthering democratic society through
+utilising physics-based techniques, I believe in sharing the
+problem-solving mindset of theoretical physics to address challenges
+across disciplines.
+
+\subsection{Research}\label{research}
+
+\subsubsection{2024 - Oxford University
+Internship}\label{oxford-university-internship}
+
+Selected for the prestigious
+\href{https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research}{Rudolf
+Peierls Centre for Theoretical Physics UROP}, I investigated Renormalon
+effects in particle physics. Working under Prof. Gavin P. Salam FRS,
+Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli, I
+studied \textbackslash( e\^{}- e\^{}+ \textbackslash) annihilation
+events. My research focused on
+\href{https://arxiv.org/abs/hep-ph/0312283}{event shape observables},
+using the \href{https://gitlab.com/panscales/panscales-0.X}{PanScales}
+software to simulate electron-positron annihilation and analyze
+geometric properties of quark anti-quark pair events, including
+corrections for soft gluons and gluers.
+
+{Particle Physics} {Quantum Field Theory} {Numerical Methods}
+
+\subsubsection{2023 - Electoral Redistricting
+Project}\label{electoral-redistricting-project}
+
+Democratic systems face a growing crisis of trust. This project tackles
+the challenge of fair electoral redistricting using computational
+methods from physics. Following a successful
+\href{https://www.maths.tcd.ie/~tristan/SSG/index.html}{hackathon}
+organized by TPSA and TCD\textquotesingle s School of Mathematics, I
+developed a genetic algorithm approach to redistribute Irish electoral
+constituencies. This complemented a physics-based algorithm developed by
+\href{https://www.maths.tcd.ie/~rcampion/}{Ruaidhrí Campion}, forming a
+comprehensive dual approach to electoral fairness. The work continues
+through The Problem Solving Association CLG, aiming to restore
+institutional trust through transparent, algorithmic solutions.
+
+{Computational Physics} {Social Systems} {Algorithmic Design}
+
+\phantomsection\label{teaching}
+\subsection{Teaching}\label{teaching}
+
+I\textquotesingle m a firm believer of the importance of putting effort
+in to show the younger generation how interesting the world of science
+can be. As well as to show them that participating in this world is an
+achievable goal. The opportunity arose in the academic year 2023/24 to
+do just that and teach at the Centre for Talented Youth Ireland.
+Specifically, the 8-12 year old course. Here are some of the materials
+for these courses:
+
+\subsubsection{Superhero Science}\label{superhero-science}
+
+Introduction to a variety of topics in science and engineering such as
+magnetism, genetics, and material science.
+
+\href{https://github.com/farrencc/ctyi_superhero_science}{View Course
+Materials →}
+
+\subsubsection{Astronomy}\label{astronomy}
+
+Fundamentals of astronomy and related areas of physics. Topics included:
+Special / General Relativity, Stars, Galaxies, Stellar Evolution, and
+Rockets.
+
+\href{https://github.com/farrencc/ctyi_astronomy}{View Course Materials
+→}
+
+\phantomsection\label{links}
+\subsection{Relevant Links}\label{relevant-links}
+
+\subsubsection{GitHub}\label{github}
+
+Access my research code, teaching materials, and personal projects.
+
+\href{https://github.com/farrencc}{Visit Profile →}
+
+\subsubsection{The TPSA}\label{the-tpsa}
+
+Learn more about our current projects and more. Both from the Student
+Association and Non-Profit.
+
+\href{https://www.tpsa.ie}{Visit Page →}
+
+© 2024 Casey Farren-Colloty \textbar{} Theoretical Physics Student and
+Non-Profit Director
+
+\href{mailto:casey@tpsa.ie}{Email}
+\href{https://github.com/farrencc}{GitHub}
+
+\end{document}

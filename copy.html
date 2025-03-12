@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Theoretical Physics Student Portfolio">
-    <title>Casey Farren-Colloty</title>
+    <title>Theoretical Physics Portfolio</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
@@ -29,15 +29,14 @@ body {
     background-color: var(--off-white);
     color: var(--text-dark);
     line-height: 1.6;
-    margin-top: 0;
-    padding-top: 0;
+    padding-top: 60px;
 }
 
 /* Navigation */
 
 nav {
     background-color: var(--primary-red);
-    padding: 1.5rem;
+    padding: 1rem;
     position: fixed;
     width: 100%;
     top: 0;
@@ -203,18 +202,14 @@ section {
 }
 
 a {
-    color: var(--primary-red); /* White by default */
+    color: var(--off-white); /* White by default */
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-a:hover {
+a:visited {
     color: var(--light-pink); /* Light pink after being visited */
     opacity: 0.9; /* Optional: slightly fade the visited links */
-}
-
-a::after {
-    color: var(--dark-red)
 }
 
 /* For social links in header */
@@ -249,15 +244,6 @@ a::after {
     text-align: left;
     color: var(--off-white);
     font-size: 2.2rem;
-}
-
-.featured-card a {
-    color: var(--off-white);
-    transition: color 0.3s ease;
-}
-
-.featured-card a:hover {
-    color: var(--light-pink);
 }
 
 /* Research Section - Updated for Vertical Tiling */
@@ -480,7 +466,7 @@ footer {
         <a href="https://github.com/yourusername" class="social-link github" target="_blank">
             <span class="social-icon">GitHub</span>
         </a>
-        <a href="https://www.linkedin.com/in/casey-farren-colloty-4b5347223/" class="social-link linkedin" target="_blank">
+        <a href="https://linkedin.com/in/yourusername" class="social-link linkedin" target="_blank">
             <span class="social-icon">LinkedIn</span>
         </a>
     </div>
@@ -494,7 +480,7 @@ footer {
                 \[ i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi \]
 	    </div> -->
 	    <div id="equation">
-		    <b>"...these lectures are about as theoretical as they come. We're not actually going to measure anything. Just pretend."</b> - <i><a target="_blank" href="http://www.damtp.cam.ac.uk/user/tong/qhe/qhe.pdf">David Tong</a></i>
+		    <b>"...these lectures are about as theoretical as they come. We're not actually going to measure anything. Just pretend."</b> - <i><a href="http://www.damtp.cam.ac.uk/user/tong/qhe/qhe.pdf">David Tong</a></i>
 		<p class="equation-description">
             There is an argument to be made that physics is at risk of becoming far too overly specialised. Indeed, this has been becoming a problem since the days of Fermi - as the last physicist to be considered both an experimentalist and a theorist. Though perhaps the advent of computational physics, allowing us to test theory in a way that was previously impossible, will allow for a new generation of physicists to be both theorists and pseudo-experimentalists. But this quote is also just funny.
             </p>
@@ -504,8 +490,8 @@ footer {
     <section id="about">
         <h1>About Me</h1>
         <p>
-           I'm a third-year theoretical physics student at Trinity College Dublin, driven by a deep curiosity to understand the fundamental principles that govern our universe as well as the application of those principles to the broader human society. I find areas that offer both profound insights into nature's workings and practical applications for a sustainable future particularly engaging.
-Beyond research, I'm passionate about making science accessible to everyone. As Seminar Director of the <a target="_blank" href="https://tpsa.ie/homepage">Theoretical Physics Student Association of Ireland</a> and Director of <a target="_blank" href="https://tpsa.ie/problemsolving">The Problem Solving Association CLG</a>, I'm involved in initiatives in science communication and education. From creating physics lecture series and teaching at the <a target="_blank" href="https://www.dcu.ie/ctyi">Centre for Talented Youth (CTYI)</a> to working on projects furthering democratic society through utilising physics-based techniques, I believe in sharing the problem-solving mindset of theoretical physics to address challenges across disciplines.
+           "I'm a third-year theoretical physics student at Trinity College Dublin, driven by a deep curiosity to understand the fundamental principles that govern our universe as well as the application of those principles to the broader human society. I find areas that offer both profound insights into nature's workings and practical applications for a sustainable future particularly engaging.
+Beyond research, I'm passionate about making science accessible to everyone. As Seminar Director of the <a href="https://www.tpsa.ie/homepage">Theoretical Physics Student Association of Ireland</a> and Director of <a href="https://tpsa.ie/problemsolving">The Problem Solving Association CLG</a>, I'm involved in initiatives in science communication and education. From creating physics lecture series and teaching at the <a href="https://www.dcu.ie/ctyi">Centre for Talented Youth (CTYI)</a> to working on projects furthering democratic society through utilising physics-based techniques, I believe in sharing the problem-solving mindset of theoretical physics to address challenges across disciplines.
         </p>
     </section>
 
@@ -520,10 +506,10 @@ Beyond research, I'm passionate about making science accessible to everyone. As 
         </div>
         <div class="research-content">
             <div class="research-details">
-                <p>Selected for the prestigious <a href="https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research" target="_blank">Rudolf Peierls Centre for Theoretical Physics UROP</a>, I investigated Renormalon effects in particle physics. Working under Prof. Gavin P. Salam FRS, Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli, I studied \( e^- e^+ \) annihilation events. My research focused on <a href="https://arxiv.org/abs/hep-ph/0312283" target="_blank">event shape observables</a>, using the <a href="https://gitlab.com/panscales/panscales-0.X" target="_blank">PanScales</a> software to simulate electron positron annihilation to quark anti-quark pair events as well as corrections involving soft gluons and gluers to analyze the change in those event shapes..</p>
+                <p>Selected for the prestigious <a href="https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research" target="_blank">Rudolf Peierls Centre for Theoretical Physics UROP</a>, I investigated Renormalon effects in particle physics. Working under Prof. Gavin P. Salam FRS, Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli, I studied \( e^- e^+ \) annihilation events. My research focused on <a href="https://arxiv.org/abs/hep-ph/0312283" target="_blank">event shape observables</a>, using the <a href="https://gitlab.com/panscales/panscales-0.X" target="_blank">PanScales</a> software to simulate electron-positron annihilation and analyze geometric properties of quark anti-quark pair events, including corrections for soft gluons and gluers.</p>
                 <div class="research-tags">
                     <span class="research-tag">Particle Physics</span>
-                    <span class="research-tag">Quantum Chromodynamics</span>
+                    <span class="research-tag">Quantum Field Theory</span>
                     <span class="research-tag">Numerical Methods</span>
                 </div>
             </div>
@@ -553,7 +539,7 @@ Beyond research, I'm passionate about making science accessible to everyone. As 
         </div>
         <div class="research-content">
             <div class="research-details">
-                <p>Democratic systems face a growing crisis of trust. This project tackles the challenge of fair electoral redistricting using computational methods from physics. Following a successful <a href="https://www.maths.tcd.ie/~tristan/SSG/index.html" target="_blank">hackathon</a> organized by TPSA and TCD's School of Mathematics, I developed a genetic algorithm approach to redistrict Irish electoral constituencies. This worked alongside a physics-based algorithm developed by <a href="https://www.maths.tcd.ie/~rcampion/">Ruaidhrí Campion</a>, forming a comprehensive dual approach to electoral fairness. The work continues through The Problem Solving Association CLG, aiming to restore institutional trust through transparent, algorithmic solutions.</p>
+                <p>Democratic systems face a growing crisis of trust. This project tackles the challenge of fair electoral redistricting using computational methods from physics. Following a successful <a href="https://www.maths.tcd.ie/~tristan/SSG/index.html" target="_blank">hackathon</a> organized by TPSA and TCD's School of Mathematics, I developed a genetic algorithm approach to redistribute Irish electoral constituencies. This complemented a physics-based algorithm developed by <a href="https://www.maths.tcd.ie/~rcampion/">Ruaidhrí Campion</a>, forming a comprehensive dual approach to electoral fairness. The work continues through The Problem Solving Association CLG, aiming to restore institutional trust through transparent, algorithmic solutions.</p>
                 <div class="research-tags">
                     <span class="research-tag">Computational Physics</span>
                     <span class="research-tag">Social Systems</span>
