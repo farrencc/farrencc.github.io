@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quantum Hall Effect Research - Casey Farren-Colloty">
+    <title>Quantum Hall Effect - Casey Farren-Colloty</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<style>
+:root {
+    --primary-red: #d64045;
+    --light-pink: #ff9eaa;
+    --off-white: #f7f7f2;
+    --dark-red: #851d41;
+    --text-dark: #2d232e;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--off-white);
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* Navigation */
+nav {
+    background-color: var(--primary-red);
+    padding: 1.5rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 2rem;
+}
+
+nav a {
+    color: var(--off-white);
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: all 0.3s ease;
+}
+
+nav a::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--light-pink);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+nav a:hover {
+    color: var(--light-pink);
+    transform: translateY(-2px);
+}
+
+nav a:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+nav a:active {
+    transform: translateY(1px);
+}
+
+.name-header {
+    background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+    color: var(--off-white);
+    padding: 4rem 2rem;
+    margin-top: 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.name-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.page-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.back-link {
+    margin-top: 2rem;
+    animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+.back-button {
+    color: var(--off-white);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.back-button:active {
+    transform: translateY(1px);
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Main Content */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+section {
+    margin: 6rem 0;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+section h1, section h2 {
+    text-align: left;
+    color: var(--primary-red);
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+}
+
+a {
+    color: var(--primary-red);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--light-pink);
+    opacity: 0.9;
+}
+
+/* Poster Section */
+.poster-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.poster-placeholder {
+    background: linear-gradient(135deg, var(--light-pink), var(--primary-red));
+    color: var(--off-white);
+    padding: 4rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.poster-placeholder h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.poster-placeholder p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    text-align: center;
+}
+
+.research-content {
+    text-align: left;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 2rem 0;
+}
+
+.equation-box {
+    background: var(--off-white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-red);
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.highlight-box {
+    background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+    color: var(--off-white);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+/* Footer */
+footer {
+    background-color: var(--dark-red);
+    color: var(--off-white);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-links a {
+    color: var(--off-white);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: var(--light-pink);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    nav ul {
+        gap: 1rem;
+    }
+    
+    section h1, section h2 {
+        font-size: 1.8rem;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .poster-placeholder {
+        padding: 2rem;
+        min-height: 300px;
+    }
+}
+</style>
+
+<nav>
+    <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#theory">Theory</a></li>
+        <li><a href="#poster">Poster</a></li>
+        <li><a href="#resources">Resources</a></li>
+    </ul>
+</nav>
+
+<div class="name-header">
+    <div class="name-container">
+        <h1 class="page-title">Quantum Hall Effect</h1>
+        <p class="page-subtitle">A Journey into Quantum Many-Body Physics</p>
+    </div>
+    <div class="back-link">
+        <a href="index.html" class="back-button">
+            ← Back to Main Page
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <section id="overview">
+        <h2>Overview</h2>
+        <div class="research-content">
+            <p>
+                The Quantum Hall Effect represents one of the most remarkable manifestations of quantum mechanics in condensed matter systems. This phenomenon occurs when a two-dimensional electron gas is subjected to a strong magnetic field at low temperatures, leading to the quantization of the Hall conductivity in precise multiples of fundamental constants.
+            </p>
+            <div class="highlight-box">
+                <h3>Hamilton Trust Internship 2024</h3>
+                <p>This research is being conducted as part of the Hamilton Trust Internship program, working collaboratively with <a href="https://danielbarron.github.io" target="_blank" style="color: var(--light-pink);">Daniel Barron</a> and Matthew Blakeney. Our team is exploring the theoretical foundations of quantum many-body physics through the lens of the Quantum Hall Effect, combining our individual strengths to develop a comprehensive understanding of this fascinating phenomenon.</p>
+            </div>
+            <div class="highlight-box">
+                <h3>Key Discoveries</h3>
+                <p>The discovery of the Integer Quantum Hall Effect by Klaus von Klitzing in 1980 earned him the Nobel Prize in Physics in 1985. Later, the Fractional Quantum Hall Effect, discovered by Tsui, Stormer, and Laughlin, revealed even more exotic quantum many-body states.</p>
+            </div>
+            <p>
+                Our collaborative study focuses on understanding the theoretical foundations of this effect, particularly following the comprehensive treatment by Steven M. Girvin in <a href="https://arxiv.org/abs/cond-mat/9907002" target="_blank">"The Quantum Hall Effect: Novel Excitations and Broken Symmetries"</a>.
+            </p>
+        </div>
+    </section>
+
+    <section id="theory">
+        <h2>Theoretical Framework</h2>
+        <div class="research-content">
+            <h3>The Hall Conductivity</h3>
+            <p>
+                The hallmark of the Quantum Hall Effect is the precise quantization of the Hall conductivity:
+            </p>
+            <div class="equation-box">
+                \[ \sigma_{xy} = \nu \frac{e^2}{h} \]
+            </div>
+            <p>
+                where ν is the filling factor, e is the elementary charge, and h is Planck's constant. The remarkable precision of this quantization has made it the basis for the modern definition of electrical resistance.
+            </p>
+
+            <h3>Landau Levels</h3>
+            <p>
+                In a strong magnetic field, the energy spectrum of electrons becomes highly degenerate, forming discrete Landau levels:
+            </p>
+            <div class="equation-box">
+                \[ E_n = \hbar \omega_c \left(n + \frac{1}{2}\right) \]
+            </div>
+            <p>
+                where ωc = eB/m is the cyclotron frequency. This quantization is fundamental to understanding the plateaus observed in the Hall resistance.
+            </p>
+
+            <h3>Laughlin Wavefunction</h3>
+            <p>
+                For the fractional quantum Hall states, Laughlin proposed a many-body wavefunction that captures the incompressible nature of these quantum fluids:
+            </p>
+            <div class="equation-box">
+                \[ \Psi_m = \prod_{i<j} (z_i - z_j)^m e^{-\frac{1}{4} \sum_i |z_i|^2 / l_B^2} \]
+            </div>
+            <p>
+                where m is an odd integer, zi = xi + iyi are complex coordinates, and lB is the magnetic length.
+            </p>
+        </div>
+    </section>
+
+    <section id="poster">
+        <h2>Research Poster</h2>
+        <div class="poster-container">
+            <div class="poster-placeholder">
+                <h3>Quantum Hall Effect Study</h3>
+                <p>
+                    A comprehensive exploration of quantum many-body physics through the lens of the Quantum Hall Effect. 
+                    This collaborative research, conducted under the Hamilton Trust Internship with Daniel Barron and Matthew Blakeney,
+                    showcases the theoretical framework, key equations, and physical insights gained from studying this remarkable quantum phenomenon.
+                </p>
+                <p style="margin-top: 2rem; font-style: italic;">
+                    Poster presentation coming soon - currently developing visual representations of the theoretical concepts and computational results.
+                </p>
+            </div>
+            <p>
+                This research poster will present our collaborative study of the Quantum Hall Effect under the Hamilton Trust Internship, 
+                including theoretical analysis, key mathematical formulations, and insights into the physics of quantum many-body systems. 
+                The work represents a joint effort between Casey Farren-Colloty, <a href="https://danielbarron.github.io" target="_blank">Daniel Barron</a>, 
+                and Matthew Blakeney, based on extensive study of the literature and development of comprehensive working notes.
+            </p>
+        </div>
+    </section>
+
+
+    <section id="resources">
+        <h2>Resources & References</h2>
+        <div class="research-content">
+            <h3>Primary References</h3>
+            <ul style="margin-left: 2rem; margin-bottom: 2rem;">
+                <li><a href="https://arxiv.org/abs/cond-mat/9907002" target="_blank">Steven M. Girvin - "The Quantum Hall Effect: Novel Excitations and Broken Symmetries"</a></li>
+                <li><a href="https://www.overleaf.com/read/ztvqsvkjhzft#156348" target="_blank">My Working Notes</a> - Comprehensive study notes and analysis</li>
+                <li>Laughlin, R. B. - "Anomalous Quantum Hall Effect: An Incompressible Quantum Fluid"</li>
+                <li>Tsui, Stormer, and Gossard - "Two-Dimensional Magnetotransport in the Extreme Quantum Limit"</li>
+            </ul>
+
+            <h3>Key Concepts Explored</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                <div style="background: var(--off-white); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary-red);">
+                    <strong>Landau Quantization</strong><br>
+                    Energy levels in magnetic fields
+                </div>
+                <div style="background: var(--off-white); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary-red);">
+                    <strong>Fractional States</strong><br>
+                    Incompressible quantum fluids
+                </div>
+                <div style="background: var(--off-white); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary-red);">
+                    <strong>Topological Order</strong><br>
+                    Novel quantum phases of matter
+                </div>
+                <div style="background: var(--off-white); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--primary-red);">
+                    <strong>Anyonic Excitations</strong><br>
+                    Neither bosons nor fermions
+                </div>
+            </div>
+
+            <h3>Ongoing Investigation</h3>
+            <p>
+                This collaborative research continues to evolve as our team delves deeper into the mathematical formalism and physical insights 
+                of quantum many-body systems. The Hamilton Trust Internship provides an excellent framework for our joint investigation, 
+                which encompasses both the integer and fractional quantum Hall effects, exploring the emergence of topological order and exotic quasiparticle excitations. 
+                Working alongside <a href="https://danielbarron.github.io" target="_blank">Daniel Barron</a> and Matthew Blakeney allows us to approach 
+                this complex topic from multiple perspectives, strengthening our overall understanding of these fundamental quantum phenomena.
+            </p>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <p>© 2024 Casey Farren-Colloty | Quantum Hall Effect Research</p>
+    <div class="social-links">
+        <a href="mailto:casey@tpsa.ie">Email</a>
+        <a href="https://github.com/farrencc" target="_blank">GitHub</a>
+        <a href="index.html">← Back to Main Page</a>
+    </div>
+</footer>
+
+<script>
+// Smooth scrolling
+document.querySelectorAll('nav a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const section = document.querySelector(this.getAttribute('href'));
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+});
+
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver(
+    (entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    },
+    { threshold: 0.1 }
+);
+
+document.querySelectorAll('section').forEach(section => {
+    observer.observe(section);
+});
+
+// MathJax configuration
+window.MathJax = {
+    tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+};
+</script>
+</body>
+</html>
