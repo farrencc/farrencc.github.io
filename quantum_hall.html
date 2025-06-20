@@ -313,7 +313,175 @@ footer {
         padding: 2rem;
         min-height: 300px;
     }
-}
+
+.simulation-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .simulation-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sim-button {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: var(--off-white);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .sim-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(214, 64, 69, 0.3);
+        }
+
+        .sim-button.active {
+            background: linear-gradient(135deg, var(--dark-red), var(--primary-red));
+            transform: scale(1.05);
+        }
+
+        .simulation-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            min-height: 600px;
+        }
+
+        .controls-panel {
+            min-width: 320px;
+            max-width: 350px;
+            background: var(--off-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-red);
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            min-height: 600px;
+            min-width: 600px;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .control-panel {
+            display: block;
+        }
+
+        .control-panel.hidden {
+            display: none;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(214, 64, 69, 0.2);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-group h4 {
+            color: var(--primary-red);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .slider-group {
+            margin-bottom: 1rem;
+        }
+
+        .slider-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-dark);
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 0.3rem;
+        }
+
+        .slider-value {
+            font-size: 0.8rem;
+            color: var(--dark-red);
+            font-weight: 500;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .info-display {
+            background: rgba(214, 64, 69, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(214, 64, 69, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .simulation-container {
+                flex-direction: column;
+            }
+            
+            .controls-panel {
+                min-width: auto;
+                max-width: none;
+            }
+            
+            .canvas-container {
+                min-width: auto;
+                min-height: 400px;
+            }
+        }
+    }
+
 </style>
 
 <nav>
@@ -417,6 +585,13 @@ footer {
                 and Matthew Blakeney, based on extensive study of the literature and development of comprehensive working notes.
             </p>
         </div>
+    </section>
+
+
+    <section id=resources>
+        <h2> Simulations</h2>
+        <a href="simulations.html">Click here to see simulations.</a>
+
     </section>
 
 

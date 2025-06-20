@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Hall Effect Simulations</title>
+    <style>
+        :root {
+            --primary-red: #d64045;
+            --light-pink: #ff9eaa;
+            --off-white: #f7f7f2;
+            --dark-red: #851d41;
+            --text-dark: #2d232e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--off-white);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .simulation-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .simulation-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sim-button {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: var(--off-white);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .sim-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(214, 64, 69, 0.3);
+        }
+
+        .sim-button.active {
+            background: linear-gradient(135deg, var(--dark-red), var(--primary-red));
+            transform: scale(1.05);
+        }
+
+        .simulation-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            min-height: 600px;
+        }
+
+        .controls-panel {
+            min-width: 320px;
+            max-width: 350px;
+            background: var(--off-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-red);
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            min-height: 600px;
+            min-width: 600px;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .control-panel {
+            display: block;
+        }
+
+        .control-panel.hidden {
+            display: none;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(214, 64, 69, 0.2);
+        }
+
+        .control-group:last-child {
+            border-bottom: none;
+        }
+
+        .control-group h4 {
+            color: var(--primary-red);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .slider-group {
+            margin-bottom: 1rem;
+        }
+
+        .slider-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-dark);
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 0.3rem;
+        }
+
+        .slider-value {
+            font-size: 0.8rem;
+            color: var(--dark-red);
+            font-weight: 500;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .info-display {
+            background: rgba(214, 64, 69, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(214, 64, 69, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .simulation-container {
+                flex-direction: column;
+            }
+            
+            .controls-panel {
+                min-width: auto;
+                max-width: none;
+            }
+            
+            .canvas-container {
+                min-width: auto;
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="simulation-section">
+        <h2 style="color: var(--primary-red); margin-bottom: 1rem;">Interactive Quantum Hall Simulations</h2>
+        
+        <p style="margin-bottom: 2rem; text-align: center; font-size: 1.1rem; color: var(--text-dark);">
+            Explore quantum Hall physics through interactive visualizations. Each simulation demonstrates key concepts with real-time parameter control.
+        </p>
+        
+        <div class="simulation-selector">
+            <button class="sim-button active" data-sim="wavefunction">Wavefunctions</button>
+            <button class="sim-button" data-sim="coherent">Coherent States</button>
+            <button class="sim-button" data-sim="classical">Classical Motion</button>
+            <button class="sim-button" data-sim="laughlin">Laughlin States</button>
+            <button class="sim-button" data-sim="vortices">Vortex Dynamics</button>
+            <button class="sim-button" data-sim="berry">Berry Phase</button>
+            <button class="sim-button" data-sim="conductivity">Conductivity</button>
+        </div>
+
+        <div class="simulation-container">
+            <div class="controls-panel">
+                <!-- Wavefunction Controls -->
+                <div id="wavefunction-controls" class="control-panel">
+                    <div class="info-display">
+                        <strong>About:</strong> Visualize Landau level wavefunctions ψₘ = zᵐe^(-|z|²/4l²ᵦ). 
+                        Higher m values show characteristic ring patterns. Enable coherent states to see displaced wavepackets.
+                    </div>
+                    <div class="control-group">
+                        <h4>Landau Level Parameters</h4>
+                        <div class="slider-group">
+                            <label for="m-value">Quantum Number m:</label>
+                            <input type="range" id="m-value" min="0" max="15" value="0" step="1">
+                            <div class="slider-value">m = <span id="m-display">0</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="lb-value">Magnetic Length l_B (nm):</label>
+                            <input type="range" id="lb-value" min="5" max="50" value="15" step="2">
+                            <div class="slider-value">l_B = <span id="lb-display">15</span> nm</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h4>Coherent Superposition</h4>
+                        <div class="slider-group">
+                            <label for="lambda-mag">Displacement |α|:</label>
+                            <input type="range" id="lambda-mag" min="0" max="4" value="0" step="0.1">
+                            <div class="slider-value">|α| = <span id="lambda-mag-display">0.0</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="lambda-phase">Phase arg(α):</label>
+                            <input type="range" id="lambda-phase" min="0" max="6.28" value="0" step="0.1">
+                            <div class="slider-value">arg(α) = <span id="lambda-phase-display">0.0</span></div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enable-superposition">
+                            <label for="enable-superposition">Enable Coherent State</label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h4>Display Options</h4>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-probability" checked>
+                            <label for="show-probability">Show |ψ|²</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-phase">
+                            <label for="show-phase">Show Phase (m>0)</label>
+                        </div>
+                        <div class="slider-group">
+                            <label for="intensity-scale">Intensity Scale:</label>
+                            <input type="range" id="intensity-scale" min="0.1" max="10" value="2" step="0.1">
+                            <div class="slider-value">Scale = <span id="intensity-display">2.0</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="zoom-wf">Zoom Level:</label>
+                            <input type="range" id="zoom-wf" min="0.05" max="8" value="1" step="0.05">
+                            <div class="slider-value">Zoom = <span id="zoom-wf-display">1.0</span>x</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coherent State Controls -->
+                <div id="coherent-controls" class="control-panel hidden">
+                    <div class="info-display">
+                        <strong>About:</strong> Coherent state ψ = exp(-|z|²/4l² + λz/l) showing 
+                        displaced Gaussian wavepacket. The probability density |ψ|² demonstrates minimum uncertainty.
+                    </div>
+                    <div class="control-group">
+                        <h4>Parameters</h4>
+                        <div class="slider-group">
+                            <label for="alpha-real">λ Real Part:</label>
+                            <input type="range" id="alpha-real" min="-6" max="6" value="3" step="0.1">
+                            <div class="slider-value">Re(λ) = <span id="alpha-real-display">3.0</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="alpha-imag">λ Imaginary Part:</label>
+                            <input type="range" id="alpha-imag" min="-6" max="6" value="0" step="0.1">
+                            <div class="slider-value">Im(λ) = <span id="alpha-imag-display">0.0</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="coherent-lb">Magnetic Length l (nm):</label>
+                            <input type="range" id="coherent-lb" min="5" max="50" value="15" step="2">
+                            <div class="slider-value">l = <span id="coherent-lb-display">15</span> nm</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="zoom-coherent">Zoom Level:</label>
+                            <input type="range" id="zoom-coherent" min="0.05" max="8" value="1" step="0.05">
+                            <div class="slider-value">Zoom = <span id="zoom-coherent-display">1.0</span>x</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="coherent-scale">Intensity Scale:</label>
+                            <input type="range" id="coherent-scale" min="0.1" max="5" value="1" step="0.1">
+                            <div class="slider-value">Scale = <span id="coherent-scale-display">1.0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classical Motion Controls -->
+                <div id="classical-controls" class="control-panel hidden">
+                    <div class="info-display">
+                        <strong>About:</strong> Classical charged particles follow cyclotron orbits with 
+                        frequency ωc = eB/m in a confined Hall bar geometry. Edge states form along boundaries.
+                    </div>
+                    <div class="control-group">
+                        <h4>Parameters</h4>
+                        <div class="slider-group">
+                            <label for="b-field">Magnetic Field B (T):</label>
+                            <input type="range" id="b-field" min="0.1" max="15" value="5" step="0.1">
+                            <div class="slider-value">B = <span id="b-field-display">5.0</span> T</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="hall-velocity">Initial Velocity (×10⁴ m/s):</label>
+                            <input type="range" id="hall-velocity" min="1" max="20" value="5" step="1">
+                            <div class="slider-value">v = <span id="velocity-display">5</span>×10⁴ m/s</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="zoom-classical">Zoom Level:</label>
+                            <input type="range" id="zoom-classical" min="0.5" max="2" value="1" step="0.1">
+                            <div class="slider-value">Zoom = <span id="zoom-classical-display">1.0</span>x</div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-trajectory" checked>
+                            <label for="show-trajectory">Show Trajectories</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="interactive-particles" checked>
+                            <label for="interactive-particles">Click to Add Particles</label>
+                        </div>
+                        <div style="text-align: center; margin: 1rem 0;">
+                            <button id="reset-particles" class="reset-button">
+                                Reset Particles
+                            </button>
+                        </div>
+                        <div class="info-display">
+                            <strong>Particles:</strong> <span id="particle-count">2</span>/20<br>
+                            <strong>Cyclotron freq:</strong> ωc = <span id="cyclotron-freq">0.88</span> THz
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Laughlin Controls -->
+                <div id="laughlin-controls" class="control-panel hidden">
+                    <div class="info-display">
+                        <strong>About:</strong> Laughlin wavefunction Ψ = ∏ᵢ&lt;ⱼ (zᵢ - zⱼ)^p exp(-Σᵢ|zᵢ|²/4l²). 
+                        Shows the probability density |Ψ|² demonstrating correlation holes and incompressible liquid structure.
+                    </div>
+                    <div class="control-group">
+                        <h4>Parameters</h4>
+                        <div class="slider-group">
+                            <label for="laughlin-p">Power p (odd only):</label>
+                            <input type="range" id="laughlin-p" min="1" max="9" value="3" step="2">
+                            <div class="slider-value">p = <span id="laughlin-p-display">3</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="num-particles">Number of Particles:</label>
+                            <input type="range" id="num-particles" min="3" max="8" value="5" step="1">
+                            <div class="slider-value">N = <span id="particles-display">5</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="zoom-laughlin">Zoom Level:</label>
+                            <input type="range" id="zoom-laughlin" min="0.5" max="4" value="1.2" step="0.1">
+                            <div class="slider-value">Zoom = <span id="zoom-laughlin-display">1.2</span>x</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="laughlin-scale">Intensity Scale:</label>
+                            <input type="range" id="laughlin-scale" min="0.1" max="3" value="1" step="0.1">
+                            <div class="slider-value">Scale = <span id="laughlin-scale-display">1.0</span></div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-particles" checked>
+                            <label for="show-particles">Show Particle Positions</label>
+                        </div>
+                        <div class="info-display">
+                            <strong>Filling Factor:</strong> ν = <span id="filling-factor">1/3</span><br>
+                            <strong>State:</strong> Incompressible quantum liquid
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vortex Controls -->
+                <div id="vortices-controls" class="control-panel hidden">
+                    <div class="info-display">
+                        <strong>About:</strong> Vortices are topological defects with phase winding 2πn around cores. 
+                        Color shows phase, brightness shows |ψ|². Vortex cores have suppressed amplitude.
+                    </div>
+                    <div class="control-group">
+                        <h4>Parameters</h4>
+                        <div class="slider-group">
+                            <label for="vortex-strength">Winding Number n:</label>
+                            <input type="range" id="vortex-strength" min="1" max="5" value="1" step="1">
+                            <div class="slider-value">n = <span id="vortex-display">1</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="zoom-vortex">Zoom Level:</label>
+                            <input type="range" id="zoom-vortex" min="0.5" max="3" value="1" step="0.1">
+                            <div class="slider-value">Zoom = <span id="zoom-vortex-display">1.0</span>x</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="background-amplitude">Background Amplitude:</label>
+                            <input type="range" id="background-amplitude" min="0.1" max="1" value="0.6" step="0.05">
+                            <div class="slider-value">Amplitude = <span id="background-display">0.6</span></div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="interactive-vortex" checked>
+                            <label for="interactive-vortex">Click to Add Vortices</label>
+                        </div>
+                        <div style="text-align: center; margin: 1rem 0;">
+                            <button id="reset-vortices" class="reset-button">
+                                Clear All Vortices
+                            </button>
+                        </div>
+                        <div class="info-display">
+                            <strong>Vortices:</strong> <span id="vortex-count">0</span> | 
+                            <strong>Total Charge:</strong> <span id="total-charge">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Berry Phase Controls -->
+                <div id="berry-controls" class="control-panel hidden">
+                    <div class="info-display">
+                        <strong>About:</strong> Berry phase γ = π(n₁n₂) from adiabatic vortex braiding. 
+                        Yellow vortex orbits white vortex, accumulating geometric phase each orbit.
+                    </div>
+                    <div class="control-group">
+                        <h4>Parameters</h4>
+                        <div class="slider-group">
+                            <label for="evolution-speed">Adiabatic Speed:</label>
+                            <input type="range" id="evolution-speed" min="0.1" max="3" value="0.8" step="0.1">
+                            <div class="slider-value">Speed = <span id="speed-display">0.8</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="vortex1-charge">Moving Vortex n₁:</label>
+                            <input type="range" id="vortex1-charge" min="1" max="4" value="1" step="1">
+                            <div class="slider-value">n₁ = <span id="v1-charge-display">1</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="vortex2-charge">Fixed Vortex n₂:</label>
+                            <input type="range" id="vortex2-charge" min="1" max="4" value="1" step="1">
+                            <div class="slider-value">n₂ = <span id="v2-charge-display">1</span></div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-berry-phase" checked>
+                            <label for="show-berry-phase">Show Accumulated Phase</label>
+                        </div>
+                        <div style="text-align: center; margin: 1rem 0;">
+                            <button id="reset-berry-phase" class="reset-button">
+                                Reset Berry Phase
+                            </button>
+                        </div>
+                        <div class="info-display">
+                            <strong>Berry Phase:</strong> γ = <span id="berry-phase-value">0.00</span>π<br>
+                            <strong>Expected/orbit:</strong> γ = π × <span id="expected-berry">1</span><br>
+                            <strong>Orbits completed:</strong> <span id="orbit-count">0.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conductivity Controls -->
+                <div id="conductivity-controls" class="control-panel hidden">
+                    <div class="info-display">
+                        <strong>About:</strong> Quantum Hall conductivity σxy = νe²/h shows plateaus at 
+                        integer/fractional filling. Disorder broadens transitions but preserves quantization.
+                    </div>
+                    <div class="control-group">
+                        <h4>Parameters</h4>
+                        <div class="slider-group">
+                            <label for="zoom-level">Field Range:</label>
+                            <input type="range" id="zoom-level" min="1" max="5" value="1" step="1">
+                            <div class="slider-value">Range = <span id="zoom-display">1</span>x</div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="disorder-strength">Disorder Strength:</label>
+                            <input type="range" id="disorder-strength" min="0" max="0.8" value="0.2" step="0.05">
+                            <div class="slider-value">Disorder = <span id="disorder-display">0.20</span></div>
+                        </div>
+                        <div class="slider-group">
+                            <label for="temperature">Temperature (K):</label>
+                            <input type="range" id="temperature" min="0.01" max="4" value="0.1" step="0.01">
+                            <div class="slider-value">T = <span id="temp-display">0.10</span> K</div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="show-fractional" checked>
+                            <label for="show-fractional">Show Fractional Plateaus</label>
+                        </div>
+                        <div class="info-display">
+                            <strong>Effect:</strong> Higher disorder → broader transitions<br>
+                            <strong>Note:</strong> Plateau values remain quantized
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="simulationCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class QuantumHallSimulator {
+            constructor() {
+                this.canvas = document.getElementById('simulationCanvas');
+                if (!this.canvas) {
+                    console.error('Canvas not found!');
+                    return;
+                }
+                
+                this.ctx = this.canvas.getContext('2d');
+                this.currentSim = 'wavefunction';
+                this.animationId = null;
+                this.time = 0;
+                this.vortices = [];
+                this.classicalParticles = [
+                    { x: -0.2, y: 0.1, vx: 0.02, vy: 0.01, trail: [] },
+                    { x: 0.15, y: -0.05, vx: -0.015, vy: 0.025, trail: [] }
+                ];
+                this.berryPhase = 0;
+                this.orbitCount = 0;
+                
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.startAnimation();
+            }
+
+            setupCanvas() {
+                const container = this.canvas.parentElement;
+                const rect = container.getBoundingClientRect();
+                this.canvas.width = Math.max(rect.width, 600);
+                this.canvas.height = Math.max(rect.height, 600);
+                
+                if (this.canvas.width <= 0) this.canvas.width = 600;
+                if (this.canvas.height <= 0) this.canvas.height = 600;
+            }
+
+            setupEventListeners() {
+                // Simulation buttons
+                document.querySelectorAll('.sim-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        document.querySelectorAll('.sim-button').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        this.switchSimulation(e.target.dataset.sim);
+                    });
+                });
+
+                // Canvas interactions
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / this.canvas.width * 2 - 1;
+                    const y = (e.clientY - rect.top) / this.canvas.height * 2 - 1;
+                    
+                    if (this.currentSim === 'vortices' && document.getElementById('interactive-vortex') && document.getElementById('interactive-vortex').checked) {
+                        this.addVortex(x, y);
+                    } else if (this.currentSim === 'classical' && document.getElementById('interactive-particles') && document.getElementById('interactive-particles').checked) {
+                        const zoom = parseFloat(document.getElementById('zoom-classical') ? document.getElementById('zoom-classical').value : 1);
+                        const boundaryWidth = 1.2 / zoom;
+                        const boundaryHeight = 0.8 / zoom;
+                        
+                        if (Math.abs(x) < boundaryWidth/2 && Math.abs(y) < boundaryHeight/2) {
+                            this.addClassicalParticle(x, y);
+                        }
+                    }
+                });
+
+                this.setupSliders();
+                setTimeout(() => this.setupResetButtons(), 100);
+                
+                window.addEventListener('resize', () => {
+                    this.setupCanvas();
+                });
+            }
+
+            setupResetButtons() {
+                const resetBerryButton = document.getElementById('reset-berry-phase');
+                if (resetBerryButton) {
+                    resetBerryButton.addEventListener('click', () => {
+                        this.berryPhase = 0;
+                        this.orbitCount = 0;
+                        this.time = 0;
+                        const display = document.getElementById('berry-phase-value');
+                        const orbitDisplay = document.getElementById('orbit-count');
+                        if (display) display.textContent = '0.00';
+                        if (orbitDisplay) orbitDisplay.textContent = '0.0';
+                    });
+                }
+
+                const resetParticlesButton = document.getElementById('reset-particles');
+                if (resetParticlesButton) {
+                    resetParticlesButton.addEventListener('click', () => {
+                        this.classicalParticles = [
+                            { x: -0.2, y: 0.1, vx: 0.02, vy: 0.01, trail: [] },
+                            { x: 0.15, y: -0.05, vx: -0.015, vy: 0.025, trail: [] }
+                        ];
+                        this.updateCounts();
+                    });
+                }
+
+                const resetVorticesButton = document.getElementById('reset-vortices');
+                if (resetVorticesButton) {
+                    resetVorticesButton.addEventListener('click', () => {
+                        this.vortices = [];
+                        this.updateCounts();
+                    });
+                }
+            }
+
+            setupSliders() {
+                const sliders = [
+                    ['m-value', 'm-display'],
+                    ['lb-value', 'lb-display'],
+                    ['lambda-mag', 'lambda-mag-display', x => x.toFixed(1)],
+                    ['lambda-phase', 'lambda-phase-display', x => x.toFixed(1)],
+                    ['intensity-scale', 'intensity-display', x => x.toFixed(1)],
+                    ['zoom-wf', 'zoom-wf-display', x => x.toFixed(2)],
+                    ['alpha-real', 'alpha-real-display', x => x.toFixed(1)],
+                    ['alpha-imag', 'alpha-imag-display', x => x.toFixed(1)],
+                    ['coherent-lb', 'coherent-lb-display'],
+                    ['zoom-coherent', 'zoom-coherent-display', x => x.toFixed(2)],
+                    ['coherent-scale', 'coherent-scale-display', x => x.toFixed(1)],
+                    ['b-field', 'b-field-display', x => x.toFixed(1)],
+                    ['hall-velocity', 'velocity-display'],
+                    ['zoom-classical', 'zoom-classical-display', x => x.toFixed(1)],
+                    ['laughlin-p', 'laughlin-p-display'],
+                    ['num-particles', 'particles-display'],
+                    ['zoom-laughlin', 'zoom-laughlin-display', x => x.toFixed(1)],
+                    ['laughlin-scale', 'laughlin-scale-display', x => x.toFixed(1)],
+                    ['vortex-strength', 'vortex-display'],
+                    ['zoom-vortex', 'zoom-vortex-display', x => x.toFixed(1)],
+                    ['background-amplitude', 'background-display', x => x.toFixed(2)],
+                    ['evolution-speed', 'speed-display', x => x.toFixed(1)],
+                    ['vortex1-charge', 'v1-charge-display'],
+                    ['vortex2-charge', 'v2-charge-display'],
+                    ['zoom-level', 'zoom-display'],
+                    ['disorder-strength', 'disorder-display', x => x.toFixed(2)],
+                    ['temperature', 'temp-display', x => x.toFixed(2)]
+                ];
+
+                sliders.forEach(sliderData => {
+                    const sliderId = sliderData[0];
+                    const displayId = sliderData[1];
+                    const formatter = sliderData[2] || (x => x);
+                    
+                    const slider = document.getElementById(sliderId);
+                    const display = document.getElementById(displayId);
+                    if (slider && display) {
+                        slider.addEventListener('input', () => {
+                            display.textContent = formatter(parseFloat(slider.value));
+                            
+                            // Update cyclotron frequency for classical motion
+                            if (sliderId === 'b-field') {
+                                this.updateCyclotronFreq();
+                            }
+                        });
+                    }
+                });
+
+                // Special cases
+                const laughlinSlider = document.getElementById('laughlin-p');
+                if (laughlinSlider) {
+                    laughlinSlider.addEventListener('input', () => {
+                        const p = parseInt(laughlinSlider.value);
+                        const display = document.getElementById('filling-factor');
+                        if (display) display.textContent = '1/' + p;
+                    });
+                }
+
+                const updateBerryExpected = () => {
+                    const n1 = parseInt(document.getElementById('vortex1-charge') ? document.getElementById('vortex1-charge').value : 1);
+                    const n2 = parseInt(document.getElementById('vortex2-charge') ? document.getElementById('vortex2-charge').value : 1);
+                    const expected = n1 * n2;
+                    const display = document.getElementById('expected-berry');
+                    if (display) display.textContent = expected;
+                };
+                
+                const vortexSliders = ['vortex1-charge', 'vortex2-charge'];
+                for (let i = 0; i < vortexSliders.length; i++) {
+                    const slider = document.getElementById(vortexSliders[i]);
+                    if (slider) slider.addEventListener('input', updateBerryExpected);
+                }
+                
+                setTimeout(() => {
+                    updateBerryExpected();
+                    this.updateCyclotronFreq();
+                }, 100);
+            }
+
+            updateCyclotronFreq() {
+                const B = parseFloat(document.getElementById('b-field') ? document.getElementById('b-field').value : 5);
+                const freq = B * 1.6e-19 / 9.1e-31 / (2 * Math.PI) / 1e12; // THz
+                const display = document.getElementById('cyclotron-freq');
+                if (display) display.textContent = freq.toFixed(2);
+            }
+
+            switchSimulation(simType) {
+                this.currentSim = simType;
+                
+                document.querySelectorAll('.control-panel').forEach(panel => {
+                    panel.classList.add('hidden');
+                });
+                
+                const activePanel = document.getElementById(simType + '-controls');
+                if (activePanel) {
+                    activePanel.classList.remove('hidden');
+                }
+
+                if (simType === 'classical') {
+                    this.classicalParticles = [
+                        { x: -0.2, y: 0.1, vx: 0.02, vy: 0.01, trail: [] },
+                        { x: 0.15, y: -0.05, vx: -0.015, vy: 0.025, trail: [] }
+                    ];
+                } else if (simType === 'vortices') {
+                    this.vortices = [];
+                } else if (simType === 'berry') {
+                    this.berryPhase = 0;
+                    this.orbitCount = 0;
+                }
+                
+                this.updateCounts();
+            }
+
+            addVortex(x, y) {
+                const strength = parseInt(document.getElementById('vortex-strength') ? document.getElementById('vortex-strength').value : 1);
+                this.vortices.push({ x: x, y: y, strength: strength });
+                this.updateCounts();
+            }
+
+            addClassicalParticle(x, y) {
+                if (this.classicalParticles.length < 20) {
+                    const v = parseFloat(document.getElementById('hall-velocity') ? document.getElementById('hall-velocity').value : 5);
+                    const angle = Math.random() * 2 * Math.PI;
+                    const speedScale = 0.005 * v;
+                    this.classicalParticles.push({
+                        x: x, 
+                        y: y,
+                        vx: speedScale * Math.cos(angle),
+                        vy: speedScale * Math.sin(angle),
+                        trail: []
+                    });
+                    this.updateCounts();
+                }
+            }
+
+            updateCounts() {
+                const particleCount = document.getElementById('particle-count');
+                if (particleCount) {
+                    particleCount.textContent = this.classicalParticles.length;
+                }
+                
+                const vortexCount = document.getElementById('vortex-count');
+                const totalCharge = document.getElementById('total-charge');
+                if (vortexCount) {
+                    vortexCount.textContent = this.vortices.length;
+                }
+                if (totalCharge) {
+                    const total = this.vortices.reduce((sum, v) => sum + v.strength, 0);
+                    totalCharge.textContent = total;
+                }
+            }
+
+            // Mathematical helper functions
+            factorial(n) {
+                if (n <= 1) return 1;
+                let result = 1;
+                for (let i = 2; i <= n; i++) {
+                    result *= i;
+                }
+                return result;
+            }
+
+            complexPower(z, n) {
+                if (n === 0) return { real: 1, imag: 0 };
+                const r = Math.sqrt(z.real * z.real + z.imag * z.imag);
+                const theta = Math.atan2(z.imag, z.real);
+                const newR = Math.pow(r, n);
+                const newTheta = n * theta;
+                return {
+                    real: newR * Math.cos(newTheta),
+                    imag: newR * Math.sin(newTheta)
+                };
+            }
+
+            hslToRgb(h, s, l) {
+                h = h / 360;
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                
+                const hueToRgb = function(p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const r = Math.round(hueToRgb(p, q, h + 1/3) * 255);
+                const g = Math.round(hueToRgb(p, q, h) * 255);
+                const b = Math.round(hueToRgb(p, q, h - 1/3) * 255);
+                
+                return [r, g, b];
+            }
+
+            safeCreateImageData(width, height) {
+                const safeWidth = Math.max(1, Math.floor(width));
+                const safeHeight = Math.max(1, Math.floor(height));
+                return this.ctx.createImageData(safeWidth, safeHeight);
+            }
+
+            render() {
+                if (this.canvas.width <= 0 || this.canvas.height <= 0) {
+                    this.setupCanvas();
+                    return;
+                }
+                
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                switch (this.currentSim) {
+                    case 'wavefunction':
+                        this.renderWavefunction();
+                        break;
+                    case 'coherent':
+                        this.renderCoherent();
+                        break;
+                    case 'classical':
+                        this.renderClassical();
+                        break;
+                    case 'laughlin':
+                        this.renderLaughlin();
+                        break;
+                    case 'vortices':
+                        this.renderVortices();
+                        break;
+                    case 'berry':
+                        this.renderBerry();
+                        break;
+                    case 'conductivity':
+                        this.renderConductivity();
+                        break;
+                }
+            }
+
+            renderWavefunction() {
+                const m = parseInt(document.getElementById('m-value') ? document.getElementById('m-value').value : 0);
+                const lB = parseFloat(document.getElementById('lb-value') ? document.getElementById('lb-value').value : 15) * 1e-9;
+                const scale = parseFloat(document.getElementById('intensity-scale') ? document.getElementById('intensity-scale').value : 2);
+                const zoom = parseFloat(document.getElementById('zoom-wf') ? document.getElementById('zoom-wf').value : 1);
+                const showPhase = document.getElementById('show-phase') ? document.getElementById('show-phase').checked : false;
+                const showProb = document.getElementById('show-probability') ? document.getElementById('show-probability').checked : true;
+                const enableSuperposition = document.getElementById('enable-superposition') ? document.getElementById('enable-superposition').checked : false;
+                
+                const imageData = this.safeCreateImageData(this.canvas.width, this.canvas.height);
+                const extent = 150e-9 / zoom; // Increased base extent for better zoom out
+                
+                for (let px = 0; px < imageData.width; px++) {
+                    for (let py = 0; py < imageData.height; py++) {
+                        const x = (px / imageData.width - 0.5) * extent;
+                        const y = (py / imageData.height - 0.5) * extent;
+                        
+                        const r_sq = x * x + y * y;
+                        const r = Math.sqrt(r_sq);
+                        
+                        let rho;
+                        let phase = 0;
+                        
+                        if (enableSuperposition) {
+                            const alpha_mag = parseFloat(document.getElementById('lambda-mag') ? document.getElementById('lambda-mag').value : 0);
+                            const alpha_phase = parseFloat(document.getElementById('lambda-phase') ? document.getElementById('lambda-phase').value : 0);
+                            const dx = x - alpha_mag * lB * Math.cos(alpha_phase);
+                            const dy = y - alpha_mag * lB * Math.sin(alpha_phase);
+                            const displaced_r_sq = dx * dx + dy * dy;
+                            rho = Math.exp(-displaced_r_sq / (4 * lB * lB));
+                        } else {
+                            // Proper Landau wavefunction: ρ(z) = |z|^{2m} * exp(-|z|²/4l²)
+                            const gaussian = Math.exp(-r_sq / (4 * lB * lB));
+                            const radial_power = Math.pow(r / lB, 2 * m);
+                            rho = radial_power * gaussian;
+                            
+                            // Phase for m > 0
+                            if (m > 0) {
+                                phase = m * Math.atan2(y, x);
+                            }
+                        }
+                        
+                        rho *= scale;
+                        
+                        const idx = (py * imageData.width + px) * 4;
+                        
+                        if (showPhase && m > 0 && !enableSuperposition) {
+                            // Show phase as color with ring intensity pattern
+                            const hue = ((phase + Math.PI) / (2 * Math.PI)) * 360;
+                            const intensity = Math.min(1, rho * 50);
+                            const [r, g, b] = this.hslToRgb(hue, 1, intensity * 0.7);
+                            imageData.data[idx] = r;
+                            imageData.data[idx + 1] = g;
+                            imageData.data[idx + 2] = b;
+                        } else if (showProb) {
+                            // Intensity based on probability density - clear ring patterns
+                            const intensity = Math.min(255, rho * 100);
+                            imageData.data[idx] = intensity;
+                            imageData.data[idx + 1] = intensity * 0.4;
+                            imageData.data[idx + 2] = intensity * 0.8;
+                        }
+                        imageData.data[idx + 3] = 255;
+                    }
+                }
+                
+                this.ctx.putImageData(imageData, 0, 0);
+                
+                // Info overlay
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '14px Arial';
+                if (enableSuperposition) {
+                    const alpha_mag = parseFloat(document.getElementById('lambda-mag') ? document.getElementById('lambda-mag').value : 0);
+                    this.ctx.fillText('Coherent State |α| = ' + alpha_mag.toFixed(1), 10, 25);
+                } else {
+                    this.ctx.fillText('Landau Level m = ' + m, 10, 25);
+                    if (m > 0) {
+                        this.ctx.fillText('Ring structure: ' + m + ' nodal circles', 10, 45);
+                    } else {
+                        this.ctx.fillText('Ground state: Gaussian profile', 10, 45);
+                    }
+                }
+                this.ctx.fillText('l_B = ' + (lB*1e9).toFixed(0) + ' nm', 10, 65);
+            }
+
+            renderCoherent() {
+                const lambdaReal = parseFloat(document.getElementById('alpha-real') ? document.getElementById('alpha-real').value : 3);
+                const lambdaImag = parseFloat(document.getElementById('alpha-imag') ? document.getElementById('alpha-imag').value : 0);
+                const l = parseFloat(document.getElementById('coherent-lb') ? document.getElementById('coherent-lb').value : 15) * 1e-9;
+                const zoom = parseFloat(document.getElementById('zoom-coherent') ? document.getElementById('zoom-coherent').value : 1);
+                const scale = parseFloat(document.getElementById('coherent-scale') ? document.getElementById('coherent-scale').value : 1);
+                
+                const imageData = this.safeCreateImageData(this.canvas.width, this.canvas.height);
+                const extent = 300e-9 / zoom; // Increased base extent for better zoom out
+                
+                for (let px = 0; px < imageData.width; px++) {
+                    for (let py = 0; py < imageData.height; py++) {
+                        const x = (px / imageData.width - 0.5) * extent;
+                        const y = (py / imageData.height - 0.5) * extent;
+                        
+                        // Probability density for ψ = exp(-|z|²/4l² + λz/l)
+                        // |ψ|² = exp(-(x² + y²)/2l² + 2*Re(λz)/l)
+                        // where Re(λz) = λ_real*x - λ_imag*y
+                        const r_sq = x * x + y * y;
+                        const lambda_z_real = lambdaReal * x - lambdaImag * y;
+                        
+                        const rho = Math.exp(-r_sq / (2 * l * l) + 2 * lambda_z_real / l);
+                        
+                        const idx = (py * imageData.width + px) * 4;
+                        const intensity = Math.min(255, rho * scale * 100);
+                        
+                        imageData.data[idx] = intensity;
+                        imageData.data[idx + 1] = intensity * 0.7;
+                        imageData.data[idx + 2] = intensity * 0.9;
+                        imageData.data[idx + 3] = 255;
+                    }
+                }
+                
+                this.ctx.putImageData(imageData, 0, 0);
+                
+                // Calculate and display the displacement
+                const displacement = Math.sqrt(lambdaReal * lambdaReal + lambdaImag * lambdaImag);
+                const displacementLength = displacement * l;
+                
+                // Info overlay
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText('Coherent State Probability Density', 10, 25);
+                this.ctx.fillText('ψ = exp(-|z|²/4l² + λz/l)', 10, 45);
+                this.ctx.fillText('λ = ' + lambdaReal.toFixed(1) + ' + ' + lambdaImag.toFixed(1) + 'i', 10, 65);
+                this.ctx.fillText('Displacement: ' + (displacementLength * 1e9).toFixed(1) + ' nm', 10, 85);
+                this.ctx.fillText('|ψ|² = exp(-|z|²/2l² + 2Re(λz)/l)', 10, 105);
+            }
+
+            renderClassical() {
+                const B = parseFloat(document.getElementById('b-field') ? document.getElementById('b-field').value : 5);
+                const zoom = parseFloat(document.getElementById('zoom-classical') ? document.getElementById('zoom-classical').value : 1);
+                const showTrajectory = document.getElementById('show-trajectory') ? document.getElementById('show-trajectory').checked : true;
+                
+                // Hall bar dimensions
+                const hallWidth = 1.2 / zoom;
+                const hallHeight = 0.8 / zoom;
+                
+                // Update particle physics
+                this.classicalParticles.forEach(particle => {
+                    const omega_c = B * 1.6e-19 / 9.1e-31 * 0.008;
+                    
+                    // Cyclotron motion
+                    const vx_new = particle.vx * Math.cos(omega_c) + particle.vy * Math.sin(omega_c);
+                    const vy_new = -particle.vx * Math.sin(omega_c) + particle.vy * Math.cos(omega_c);
+                    
+                    particle.vx = vx_new;
+                    particle.vy = vy_new;
+                    
+                    let newX = particle.x + particle.vx;
+                    let newY = particle.y + particle.vy;
+                    
+                    // Boundary collisions - Hall bar geometry
+                    if (Math.abs(newX) > hallWidth/2) {
+                        particle.vx = -particle.vx * 0.8; // Some energy loss
+                        particle.x = Math.sign(newX) * hallWidth/2 * 0.98;
+                        // Add drift velocity from B field
+                        particle.vy += Math.sign(newX) * B * 0.005;
+                    } else {
+                        particle.x = newX;
+                    }
+                    
+                    if (Math.abs(newY) > hallHeight/2) {
+                        particle.vy = -particle.vy * 0.8;
+                        particle.y = Math.sign(newY) * hallHeight/2 * 0.98;
+                        particle.vx += -Math.sign(newY) * B * 0.005;
+                    } else {
+                        particle.y = newY;
+                    }
+                    
+                    // Speed limit
+                    const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
+                    if (speed > 0.08) {
+                        particle.vx *= 0.08 / speed;
+                        particle.vy *= 0.08 / speed;
+                    }
+                    
+                    particle.trail.push({ x: particle.x, y: particle.y });
+                    if (particle.trail.length > 400) {
+                        particle.trail.shift();
+                    }
+                });
+                
+                // Draw Hall bar boundaries
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 4;
+                this.ctx.beginPath();
+                const rectX = (1 - hallWidth/2) * this.canvas.width / 2;
+                const rectY = (1 - hallHeight/2) * this.canvas.height / 2;
+                const rectW = hallWidth * this.canvas.width / 2;
+                const rectH = hallHeight * this.canvas.height / 2;
+                this.ctx.rect(rectX, rectY, rectW, rectH);
+                this.ctx.stroke();
+                
+                // Draw edge current indicators
+                this.ctx.strokeStyle = '#ffaa00';
+                this.ctx.lineWidth = 2;
+                this.ctx.setLineDash([5, 5]);
+                // Top edge - current flows right
+                this.ctx.beginPath();
+                this.ctx.moveTo(rectX + 10, rectY - 5);
+                this.ctx.lineTo(rectX + rectW - 10, rectY - 5);
+                this.ctx.stroke();
+                // Bottom edge - current flows left  
+                this.ctx.beginPath();
+                this.ctx.moveTo(rectX + rectW - 10, rectY + rectH + 5);
+                this.ctx.lineTo(rectX + 10, rectY + rectH + 5);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+                
+                // Draw trajectories
+                if (showTrajectory) {
+                    this.classicalParticles.forEach((particle, idx) => {
+                        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+                        this.ctx.strokeStyle = colors[idx % colors.length];
+                        this.ctx.lineWidth = 2;
+                        
+                        if (particle.trail.length > 1) {
+                            this.ctx.beginPath();
+                            for (let i = 0; i < particle.trail.length; i++) {
+                                const screenX = (particle.trail[i].x / zoom + 1) * this.canvas.width / 2;
+                                const screenY = (particle.trail[i].y / zoom + 1) * this.canvas.height / 2;
+                                
+                                if (i === 0) {
+                                    this.ctx.moveTo(screenX, screenY);
+                                } else {
+                                    this.ctx.lineTo(screenX, screenY);
+                                }
+                            }
+                            this.ctx.stroke();
+                        }
+                    });
+                }
+                
+                // Draw particles
+                this.classicalParticles.forEach((particle, idx) => {
+                    const colors = ['#ffff00', '#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#00ffff', '#ffa500'];
+                    this.ctx.fillStyle = colors[idx % colors.length];
+                    
+                    const screenX = (particle.x / zoom + 1) * this.canvas.width / 2;
+                    const screenY = (particle.y / zoom + 1) * this.canvas.height / 2;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                    
+                    // Velocity arrow
+                    this.ctx.strokeStyle = colors[idx % colors.length];
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(screenX, screenY);
+                    this.ctx.lineTo(screenX + particle.vx * 500, screenY + particle.vy * 500);
+                    this.ctx.stroke();
+                });
+                
+                // Info overlay
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '16px Arial';
+                this.ctx.fillText('B = ' + B.toFixed(1) + ' T ⊗', 10, 30);
+                this.ctx.fillText('Particles: ' + this.classicalParticles.length + '/20', 10, 50);
+                this.ctx.fillText('Hall Bar Geometry', 10, 70);
+                this.ctx.font = '12px Arial';
+                this.ctx.fillStyle = '#ffaa00';
+                this.ctx.fillText('Orange dashed: Edge currents', 10, 90);
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillText('Click inside to add particles', 10, 105);
+            }
+
+            renderLaughlin() {
+                const p = parseInt(document.getElementById('laughlin-p') ? document.getElementById('laughlin-p').value : 3);
+                const numParticles = parseInt(document.getElementById('num-particles') ? document.getElementById('num-particles').value : 5);
+                const zoom = parseFloat(document.getElementById('zoom-laughlin') ? document.getElementById('zoom-laughlin').value : 1.2);
+                const scale = parseFloat(document.getElementById('laughlin-scale') ? document.getElementById('laughlin-scale').value : 1);
+                const showParticles = document.getElementById('show-particles') ? document.getElementById('show-particles').checked : true;
+                
+                // Fixed particle positions for clean visualization of correlation structure
+                const positions = [];
+                for (let i = 0; i < numParticles; i++) {
+                    const angle = (i / numParticles) * 2 * Math.PI;
+                    const radius = 0.35; // Fixed radius for symmetric pattern
+                    positions.push({
+                        x: radius * Math.cos(angle),
+                        y: radius * Math.sin(angle)
+                    });
+                }
+                
+                const imageData = this.safeCreateImageData(this.canvas.width, this.canvas.height);
+                const extent = 1.8 / zoom;
+                
+                for (let px = 0; px < imageData.width; px++) {
+                    for (let py = 0; py < imageData.height; py++) {
+                        const x = (px / imageData.width - 0.5) * extent;
+                        const y = (py / imageData.height - 0.5) * extent;
+                        
+                        // Start with overall Gaussian envelope
+                        const r_sq = x * x + y * y;
+                        let rho = Math.exp(-r_sq / 0.8); // Broad envelope
+                        
+                        // Correlation holes around each particle position
+                        // This creates the characteristic "swiss cheese" structure
+                        for (let i = 0; i < positions.length; i++) {
+                            const pos = positions[i];
+                            const dx = x - pos.x;
+                            const dy = y - pos.y;
+                            const dist_sq = dx * dx + dy * dy;
+                            
+                            // Create correlation hole with size dependent on p
+                            const holeSize = 0.15 + p * 0.02; // Larger holes for larger p
+                            if (dist_sq < holeSize * holeSize) {
+                                // Smooth suppression in correlation hole
+                                const suppression = Math.exp(-Math.pow(dist_sq, p/2) / (holeSize * holeSize));
+                                rho *= (1 - 0.9 * suppression);
+                            }
+                        }
+                        
+                        // Inter-particle correlations create modulation
+                        for (let i = 0; i < positions.length; i++) {
+                            for (let j = i + 1; j < positions.length; j++) {
+                                const dx_ij = positions[i].x - positions[j].x;
+                                const dy_ij = positions[i].y - positions[j].y;
+                                const dist_ij = Math.sqrt(dx_ij * dx_ij + dy_ij * dy_ij);
+                                
+                                // Interference pattern between particles
+                                const mid_x = (positions[i].x + positions[j].x) / 2;
+                                const mid_y = (positions[i].y + positions[j].y) / 2;
+                                const dx_mid = x - mid_x;
+                                const dy_mid = y - mid_y;
+                                const dist_mid = Math.sqrt(dx_mid * dx_mid + dy_mid * dy_mid);
+                                
+                                if (dist_mid < dist_ij / 2) {
+                                    // Enhancement between particles (bright regions)
+                                    rho *= 1 + 0.3 * Math.exp(-dist_mid * dist_mid / (0.1 * dist_ij * dist_ij));
+                                }
+                            }
+                        }
+                        
+                        // Apply scaling and ensure good contrast
+                        rho *= scale;
+                        const intensity = Math.min(255, Math.pow(rho, 0.4) * 255);
+                        
+                        const idx = (py * imageData.width + px) * 4;
+                        
+                        // Color scheme with good contrast
+                        imageData.data[idx] = intensity;           // Red
+                        imageData.data[idx + 1] = intensity * 0.7; // Green  
+                        imageData.data[idx + 2] = intensity * 0.9; // Blue
+                        imageData.data[idx + 3] = 255;
+                    }
+                }
+                
+                this.ctx.putImageData(imageData, 0, 0);
+                
+                if (showParticles) {
+                    // Draw particle positions
+                    this.ctx.fillStyle = '#ffff00';
+                    this.ctx.strokeStyle = '#000';
+                    this.ctx.lineWidth = 2;
+                    
+                    for (let i = 0; i < positions.length; i++) {
+                        const pos = positions[i];
+                        const screenX = (pos.x / extent + 0.5) * this.canvas.width;
+                        const screenY = (pos.y / extent + 0.5) * this.canvas.height;
+                        
+                        this.ctx.beginPath();
+                        this.ctx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        
+                        // Particle label
+                        this.ctx.fillStyle = '#000';
+                        this.ctx.font = '12px Arial';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.fillText((i + 1).toString(), screenX, screenY + 4);
+                        this.ctx.fillStyle = '#ffff00';
+                    }
+                    this.ctx.textAlign = 'left';
+                }
+                
+                // Info overlay
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText('Laughlin ν = 1/' + p + ' Probability Density', 10, 25);
+                this.ctx.fillText('|Ψ|² with correlation holes around particles', 10, 45);
+                this.ctx.fillText(numParticles + ' particles, p = ' + p, 10, 65);
+                this.ctx.fillText('Dark holes: correlation suppression', 10, 85);
+                this.ctx.fillText('Bright regions: enhanced probability', 10, 105);
+            }
+
+            renderVortices() {
+                const zoom = parseFloat(document.getElementById('zoom-vortex') ? document.getElementById('zoom-vortex').value : 1);
+                const bgAmplitude = parseFloat(document.getElementById('background-amplitude') ? document.getElementById('background-amplitude').value : 0.6);
+                
+                const imageData = this.safeCreateImageData(this.canvas.width, this.canvas.height);
+                
+                for (let px = 0; px < imageData.width; px++) {
+                    for (let py = 0; py < imageData.height; py++) {
+                        const x = (px / imageData.width - 0.5) * 2 / zoom;
+                        const y = (py / imageData.height - 0.5) * 2 / zoom;
+                        
+                        let phase = 0;
+                        let amplitude = bgAmplitude;
+                        
+                        // Accumulate phase and amplitude from all vortices
+                        for (let i = 0; i < this.vortices.length; i++) {
+                            const vortex = this.vortices[i];
+                            const dx = x - vortex.x / zoom;
+                            const dy = y - vortex.y / zoom;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (dist > 0.03) {
+                                // Phase winding 2πn around vortex
+                                phase += vortex.strength * Math.atan2(dy, dx);
+                                // Amplitude suppression near core
+                                amplitude *= Math.tanh(dist * 15);
+                            } else {
+                                // Strong amplitude suppression at vortex core
+                                amplitude *= 0.05;
+                            }
+                        }
+                        
+                        // Background quantum fluid with smooth falloff
+                        const r_sq = x * x + y * y;
+                        amplitude *= Math.exp(-r_sq / 6) + 0.15; // Prevent complete black
+                        
+                        // Ensure minimum visibility
+                        amplitude = Math.max(amplitude, 0.1);
+                        
+                        const idx = (py * imageData.width + px) * 4;
+                        
+                        // Phase-dependent coloring
+                        const hue = ((phase + Math.PI) / (2 * Math.PI)) * 360;
+                        const saturation = Math.min(1, amplitude * 1.5);
+                        const lightness = Math.min(0.8, amplitude * 0.6 + 0.25);
+                        const [r, g, b] = this.hslToRgb(hue, saturation, lightness);
+                        
+                        imageData.data[idx] = r;
+                        imageData.data[idx + 1] = g;
+                        imageData.data[idx + 2] = b;
+                        imageData.data[idx + 3] = 255;
+                    }
+                }
+                
+                this.ctx.putImageData(imageData, 0, 0);
+                
+                // Draw vortex cores and winding indicators
+                this.ctx.font = '16px Arial';
+                this.ctx.textAlign = 'center';
+                
+                for (let i = 0; i < this.vortices.length; i++) {
+                    const vortex = this.vortices[i];
+                    const screenX = (vortex.x / zoom + 1) * this.canvas.width / 2;
+                    const screenY = (vortex.y / zoom + 1) * this.canvas.height / 2;
+                    
+                    // Vortex core
+                    this.ctx.fillStyle = '#000000';
+                    this.ctx.strokeStyle = '#ffffff';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenX, screenY, 15, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+                    
+                    // Winding number
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.fillText(vortex.strength.toString(), screenX, screenY + 6);
+                    
+                    // Phase winding indicator
+                    this.ctx.strokeStyle = vortex.strength > 0 ? '#00ff00' : '#ff0000';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.setLineDash([3, 3]);
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenX, screenY, 25, 0, 2 * Math.PI);
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                }
+                
+                this.ctx.textAlign = 'left';
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText('Vortex Dynamics in Quantum Fluid', 10, 25);
+                this.ctx.fillText('Color = phase, brightness = |ψ|²', 10, 45);
+                this.ctx.fillText('White circles = vortex cores', 10, 65);
+                this.ctx.fillText('Click to add vortices', 10, 85);
+            }
+
+            renderBerry() {
+                const speed = parseFloat(document.getElementById('evolution-speed') ? document.getElementById('evolution-speed').value : 0.8);
+                const n1 = parseInt(document.getElementById('vortex1-charge') ? document.getElementById('vortex1-charge').value : 1);
+                const n2 = parseInt(document.getElementById('vortex2-charge') ? document.getElementById('vortex2-charge').value : 1);
+                const showPhase = document.getElementById('show-berry-phase') ? document.getElementById('show-berry-phase').checked : true;
+                
+                const t = this.time * speed * 0.015;
+                const vortex1 = { x: -0.4, y: 0, strength: n2 }; // Fixed vortex
+                const vortex2 = { x: 0.6 * Math.cos(t), y: 0.6 * Math.sin(t), strength: n1 }; // Moving vortex
+                
+                // Calculate Berry phase accumulation
+                const expectedPhasePerOrbit = Math.PI * n1 * n2;
+                this.orbitCount = t / (2 * Math.PI);
+                this.berryPhase = this.orbitCount * expectedPhasePerOrbit;
+                
+                // Update displays
+                const berryDisplay = document.getElementById('berry-phase-value');
+                const orbitDisplay = document.getElementById('orbit-count');
+                if (berryDisplay) {
+                    berryDisplay.textContent = (this.berryPhase / Math.PI).toFixed(2);
+                }
+                if (orbitDisplay) {
+                    orbitDisplay.textContent = this.orbitCount.toFixed(1);
+                }
+                
+                // Background field
+                const imageData = this.safeCreateImageData(this.canvas.width, this.canvas.height);
+                
+                for (let px = 0; px < imageData.width; px++) {
+                    for (let py = 0; py < imageData.height; py++) {
+                        const x = (px / imageData.width - 0.5) * 2.5;
+                        const y = (py / imageData.height - 0.5) * 2.5;
+                        
+                        let phase = 0;
+                        let amplitude = 1;
+                        
+                        // Phases from both vortices
+                        const vortexList = [vortex1, vortex2];
+                        for (let i = 0; i < vortexList.length; i++) {
+                            const vortex = vortexList[i];
+                            const dx = x - vortex.x;
+                            const dy = y - vortex.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (dist > 0.08) {
+                                phase += vortex.strength * Math.atan2(dy, dx);
+                                amplitude *= Math.tanh(dist * 8);
+                            } else {
+                                amplitude *= 0.1;
+                            }
+                        }
+                        
+                        // Add accumulated Berry phase
+                        if (showPhase) {
+                            phase += this.berryPhase;
+                        }
+                        
+                        amplitude *= Math.exp(-(x * x + y * y) / 10) + 0.2;
+                        
+                        const idx = (py * imageData.width + px) * 4;
+                        const hue = ((phase + Math.PI) / (2 * Math.PI)) * 360;
+                        const [r, g, b] = this.hslToRgb(hue, 1, amplitude * 0.6);
+                        
+                        imageData.data[idx] = r;
+                        imageData.data[idx + 1] = g;
+                        imageData.data[idx + 2] = b;
+                        imageData.data[idx + 3] = 255;
+                    }
+                }
+                
+                this.ctx.putImageData(imageData, 0, 0);
+                
+                // Draw vortices
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 4;
+                
+                // Fixed vortex (white)
+                const screen1X = (vortex1.x + 1.25) * this.canvas.width / 2.5;
+                const screen1Y = (vortex1.y + 1.25) * this.canvas.height / 2.5;
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.beginPath();
+                this.ctx.arc(screen1X, screen1Y, 12, 0, 2 * Math.PI);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Moving vortex (yellow)
+                const screen2X = (vortex2.x + 1.25) * this.canvas.width / 2.5;
+                const screen2Y = (vortex2.y + 1.25) * this.canvas.height / 2.5;
+                this.ctx.fillStyle = '#ffff00';
+                this.ctx.beginPath();
+                this.ctx.arc(screen2X, screen2Y, 12, 0, 2 * Math.PI);
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                // Orbital path
+                this.ctx.strokeStyle = '#ffff88';
+                this.ctx.lineWidth = 2;
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.beginPath();
+                this.ctx.arc(this.canvas.width / 2, this.canvas.height / 2, 0.6 * this.canvas.width / 2.5, 0, 2 * Math.PI);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+                
+                // Info overlay
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText('Berry Phase from Vortex Braiding', 10, 25);
+                this.ctx.fillText('Yellow vortex (n₁=' + n1 + ') orbits white (n₂=' + n2 + ')', 10, 45);
+                this.ctx.fillText('Geometric phase γ = π(n₁n₂) per orbit', 10, 65);
+            }
+
+            renderConductivity() {
+                const fieldRange = parseInt(document.getElementById('zoom-level') ? document.getElementById('zoom-level').value : 1);
+                const disorder = parseFloat(document.getElementById('disorder-strength') ? document.getElementById('disorder-strength').value : 0.2);
+                const temperature = parseFloat(document.getElementById('temperature') ? document.getElementById('temperature').value : 0.1);
+                const showFractional = document.getElementById('show-fractional') ? document.getElementById('show-fractional').checked : true;
+                
+                // White background
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Axes
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.moveTo(60, this.canvas.height - 60);
+                this.ctx.lineTo(this.canvas.width - 30, this.canvas.height - 60);
+                this.ctx.moveTo(60, 30);
+                this.ctx.lineTo(60, this.canvas.height - 60);
+                this.ctx.stroke();
+                
+                // Axis labels
+                this.ctx.fillStyle = '#000';
+                this.ctx.font = '16px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('Magnetic Field B (T)', this.canvas.width / 2, this.canvas.height - 10);
+                this.ctx.save();
+                this.ctx.translate(20, this.canvas.height / 2);
+                this.ctx.rotate(-Math.PI / 2);
+                this.ctx.fillText('σ_xy (e²/h)', 0, 0);
+                this.ctx.restore();
+                this.ctx.textAlign = 'left';
+                
+                // Plot dimensions
+                const plotWidth = this.canvas.width - 90;
+                const plotHeight = this.canvas.height - 90;
+                const maxField = 15 / fieldRange;
+                const maxSigma = 6;
+                
+                // Draw conductivity curve
+                this.ctx.strokeStyle = '#d64045';
+                this.ctx.lineWidth = 4;
+                this.ctx.beginPath();
+                
+                for (let i = 0; i < plotWidth; i++) {
+                    const B = (i / plotWidth) * maxField + 0.5;
+                    const nu = 20 / B; // Filling factor ν ∝ 1/B
+                    
+                    let sigma = 0;
+                    
+                    // Temperature broadening factor
+                    const thermFactor = Math.exp(-1/(temperature + 0.01));
+                    
+                    // Integer plateaus with disorder broadening
+                    const plateaus = [
+                        {nu: 4, sigma: 4, width: 0.4 + disorder * 2},
+                        {nu: 3, sigma: 3, width: 0.3 + disorder * 1.5},
+                        {nu: 2, sigma: 2, width: 0.25 + disorder * 1.2},
+                        {nu: 1, sigma: 1, width: 0.2 + disorder}
+                    ];
+                    
+                    // Fractional plateaus (if enabled)
+                    if (showFractional) {
+                        plateaus.push(
+                            {nu: 1/3, sigma: 1/3, width: 0.08 + disorder * 0.4},
+                            {nu: 2/5, sigma: 2/5, width: 0.06 + disorder * 0.3},
+                            {nu: 2/3, sigma: 2/3, width: 0.05 + disorder * 0.25}
+                        );
+                    }
+                    
+                    // Check for plateau
+                    let onPlateau = false;
+                    for (let p = 0; p < plateaus.length; p++) {
+                        const plateau = plateaus[p];
+                        const diff = Math.abs(nu - plateau.nu);
+                        if (diff < plateau.width) {
+                            sigma = plateau.sigma * (1 - thermFactor * diff / plateau.width);
+                            onPlateau = true;
+                            break;
+                        }
+                    }
+                    
+                    // Smooth transitions between plateaus
+                    if (!onPlateau) {
+                        if (nu > 3.5) sigma = 3 + (nu - 3) * 0.8;
+                        else if (nu > 2.5) sigma = 2 + (nu - 2) * 0.9;
+                        else if (nu > 1.5) sigma = 1 + (nu - 1) * 0.7;
+                        else if (nu > 0.8) sigma = nu * 0.8;
+                        else sigma = 0.1;
+                        
+                        // Add temperature effects
+                        sigma *= (1 + temperature * 0.1);
+                    }
+                    
+                    const x = 60 + i;
+                    const y = this.canvas.height - 60 - (sigma / maxSigma) * plotHeight;
+                    
+                    if (i === 0) {
+                        this.ctx.moveTo(x, y);
+                    } else {
+                        this.ctx.lineTo(x, y);
+                    }
+                }
+                
+                this.ctx.stroke();
+                
+                // Plateau labels
+                this.ctx.fillStyle = '#d64045';
+                this.ctx.font = '14px Arial';
+                const labelY = this.canvas.height - 60;
+                
+                // Integer plateaus
+                this.ctx.fillText('ν = 4', 80, labelY - 4 * plotHeight / maxSigma + 15);
+                this.ctx.fillText('ν = 2', 140, labelY - 2 * plotHeight / maxSigma + 15);
+                this.ctx.fillText('ν = 1', 220, labelY - 1 * plotHeight / maxSigma + 15);
+                
+                if (showFractional) {
+                    this.ctx.fillText('ν = 1/3', 350, labelY - (1/3) * plotHeight / maxSigma + 15);
+                }
+                
+                // Title and parameters
+                this.ctx.fillStyle = '#000';
+                this.ctx.font = '18px Arial';
+                this.ctx.fillText('Quantum Hall Conductivity Plateaus', 10, 25);
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('Disorder: ' + disorder.toFixed(2) + ' | T: ' + temperature.toFixed(2) + ' K', 10, this.canvas.height - 110);
+                this.ctx.fillText('Higher disorder → broader transitions', 10, this.canvas.height - 95);
+                this.ctx.fillText('Plateau values remain exactly quantized', 10, this.canvas.height - 80);
+            }
+
+            startAnimation() {
+                const animate = () => {
+                    this.time++;
+                    this.render();
+                    this.animationId = requestAnimationFrame(animate);
+                };
+                animate();
+            }
+
+            stop() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+        }
+
+        // Initialize when page loads
+        function initSimulator() {
+            const canvas = document.getElementById('simulationCanvas');
+            if (canvas) {
+                new QuantumHallSimulator();
+            } else {
+                setTimeout(initSimulator, 100);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSimulator);
+        } else {
+            initSimulator();
+        }
+    </script>
+</body>
+</html>
