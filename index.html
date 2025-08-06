@@ -460,6 +460,29 @@ footer {
         padding: 0 1rem;
     }
 }
+
+
+.publication-badge {
+    background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+    color: var(--off-white);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 0.5rem;
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+}
+
+.publication-badge:hover {
+    background: linear-gradient(135deg, var(--dark-red), var(--primary-red));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(214, 64, 69, 0.3);
+    color: var(--off-white) !important;
+}
+
+
 </style>
 
 <nav>
@@ -467,6 +490,7 @@ footer {
         <li><a href="#about">About</a></li>
         <li><a href="#research">Research</a></li>
         <li><a href="#teaching">Teaching</a></li>
+        <li><a href="#games">Games</a></li>
         <li><a href="#links">Links</a></li>
     </ul>
 </nav>
@@ -540,6 +564,11 @@ Beyond research, I'm passionate about making science accessible to everyone. As 
         <div class="research-content">
             <div class="research-details">
                 <p>Selected for the prestigious <a href="https://www.physics.ox.ac.uk/research/subdepartment/rudolf-peierls-centre-theoretical-physics/undergraduate-research" target="_blank">Rudolf Peierls Centre for Theoretical Physics UROP</a>, I investigated Renormalon effects in particle physics. Working under Prof. Gavin P. Salam FRS, Prof. Fabrizio Caola, Jack Oliver Helliwell, and Silvia Zanoli, I studied \( e^- e^+ \) annihilation events. My research focused on <a href="https://arxiv.org/abs/hep-ph/0312283" target="_blank">event shape observables</a>, using the <a href="https://gitlab.com/panscales/panscales-0.X" target="_blank">PanScales</a> software to simulate electron positron annihilation to quark anti-quark pair events as well as corrections involving soft gluons and gluers to analyze the change in those event shapes..</p>
+
+                <a href="https://arxiv.org/abs/2507.18696" target="_blank" class="publication-badge">
+                    📄 arXiv:2507.18696 - Anomalous scaling of linear power corrections
+                </a>
+
                 <div class="research-tags">
                     <span class="research-tag">Particle Physics</span>
                     <span class="research-tag">Quantum Chromodynamics</span>
@@ -588,6 +617,22 @@ Beyond research, I'm passionate about making science accessible to everyone. As 
         </div>
     </div></div>
 </section>
+
+<section id="games">
+    <div class="container">
+        <h2>Games</h2>
+        <div class="section-content">
+            <div class="materials-grid">
+                <div class="material-card">
+                    <h3>Connect 4 Torus</h3>
+                    <p>A unique variant of Connect 4 with periodic boundary conditions. The board wraps around both horizontally and vertically creating a torus topology.</p>
+                    <a href="connect4-game.html">Play Game →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
 <section id="links">
     <div class="container">

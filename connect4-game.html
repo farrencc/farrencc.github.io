@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect 4 Torus - Casey Farren-Colloty</title>
+    <style>
+        :root {
+            --primary-red: #d64045;
+            --light-pink: #ff9eaa;
+            --off-white: #f7f7f2;
+            --dark-red: #851d41;
+            --text-dark: #2d232e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--off-white);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            color: var(--primary-red);
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .game-subtitle {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-description {
+            background: var(--off-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-red);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .introduction-section {
+            margin-bottom: 2rem;
+        }
+
+        .introduction-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid rgba(214, 64, 69, 0.1);
+        }
+
+        .introduction-content p {
+            line-height: 1.7;
+            color: var(--text-dark);
+        }
+
+        .introduction-content strong {
+            color: var(--primary-red);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .current-player {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .player-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 3px solid var(--text-dark);
+        }
+
+        .player1 {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+        }
+
+        .player2 {
+            background: linear-gradient(135deg, var(--light-pink), var(--primary-red));
+            color: var(--dark-red);
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(214, 64, 69, 0.3);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            background: var(--text-dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 2rem 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            position: relative;
+            border: 2px solid transparent;
+            min-height: 60px;
+        }
+
+        .cell:hover:not(.occupied) {
+            background: var(--off-white);
+            transform: scale(1.05);
+            border-color: var(--primary-red);
+        }
+
+        .cell.occupied {
+            cursor: not-allowed;
+        }
+
+        .cell.player1 {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            border-color: var(--dark-red);
+        }
+
+        .cell.player2 {
+            background: linear-gradient(135deg, var(--light-pink), var(--primary-red));
+            color: var(--dark-red);
+            border-color: var(--primary-red);
+        }
+
+        .cell.winning {
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 20px var(--primary-red);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .game-status {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            min-height: 2rem;
+        }
+
+        .winner {
+            color: var(--primary-red);
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .rules-toggle {
+            background: none;
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .rules-toggle:hover {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .rules-content {
+            display: none;
+            background: var(--off-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .rules-content.show {
+            display: block;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(214, 64, 69, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .cell {
+                font-size: 1.5rem;
+                min-height: 50px;
+            }
+            
+            .back-link {
+                position: static;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="back-link">
+        <a href="index.html" class="back-button">← Back to Portfolio</a>
+    </div>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">Connect 4 Torus</h1>
+            <p class="game-subtitle">Connect Four with Periodic Boundary Conditions</p>
+            
+            <div class="game-description">
+                <strong>How to Play:</strong> Get four pieces in a row to win! Unlike regular Connect 4, you can place pieces anywhere on the board (no gravity). The board wraps around - pieces at the edges connect to pieces on the opposite edges, creating a torus topology.
+            </div>
+        </div>
+
+        <div class="introduction-section">
+            <div class="introduction-content">
+                <h3 style="color: var(--primary-red); margin-bottom: 1rem;">A Game Born from Late-Night Oxford Discussions</h3>
+                <p style="margin-bottom: 1rem;">
+                    I first encountered this fascinating variant of Connect 4 during my summer internship at Oxford's Rudolf Peierls Centre for Theoretical Physics. It was <strong>Param Luhadiya</strong> and <strong>Om Gupta</strong>, fellow interns, who introduced me to this ingenious perhaps even sadistic twist on the classic game. 
+                </p>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="current-player">
+                <span>Current Player:</span>
+                <div class="player-indicator player1" id="playerIndicator">×</div>
+                <span id="playerName">Player 1 (×)</span>
+            </div>
+            <button class="reset-button" onclick="resetGame()">New Game</button>
+            <button class="rules-toggle" onclick="toggleRules()">Rules & Strategy</button>
+        </div>
+
+        <div class="rules-content" id="rulesContent">
+            <h3 style="color: var(--primary-red); margin-bottom: 1rem;">Rules & Strategy Tips</h3>
+            <ul style="margin-left: 1.5rem; line-height: 1.8;">
+                <li><strong>Objective:</strong> Get 4 pieces in a row (horizontal, vertical, or diagonal)</li>
+                <li><strong>No Gravity:</strong> Place pieces anywhere on the board</li>
+                <li><strong>Wrapping:</strong> Board edges connect - rightmost column connects to leftmost, top row connects to bottom</li>
+                <li><strong>Strategy:</strong> Think about connections across edges - a line can wrap around multiple times!</li>
+                <li><strong>Advanced:</strong> Corner pieces have maximum connectivity due to wrapping in both directions</li>
+            </ul>
+        </div>
+
+        <div class="game-status" id="gameStatus"></div>
+
+        <div class="game-board" id="gameBoard"></div>
+    </div>
+
+    <script>
+        class Connect4Torus {
+            constructor() {
+                this.rows = 6;
+                this.cols = 7;
+                this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
+                this.currentPlayer = 1; // 1 for X, 2 for O
+                this.gameOver = false;
+                this.winner = null;
+                this.winningCells = [];
+                this.initializeBoard();
+            }
+
+            initializeBoard() {
+                const gameBoard = document.getElementById('gameBoard');
+                gameBoard.innerHTML = '';
+                
+                for (let row = 0; row < this.rows; row++) {
+                    for (let col = 0; col < this.cols; col++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        cell.addEventListener('click', () => this.handleCellClick(row, col));
+                        gameBoard.appendChild(cell);
+                    }
+                }
+                this.updateDisplay();
+            }
+
+            handleCellClick(row, col) {
+                if (this.gameOver || this.board[row][col] !== 0) {
+                    return;
+                }
+
+                this.board[row][col] = this.currentPlayer;
+                
+                if (this.checkWin(row, col)) {
+                    this.gameOver = true;
+                    this.winner = this.currentPlayer;
+                } else if (this.isBoardFull()) {
+                    this.gameOver = true;
+                    this.winner = 0; // Tie
+                } else {
+                    this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                }
+
+                this.updateDisplay();
+            }
+
+            checkWin(row, col) {
+                const player = this.board[row][col];
+                
+                // Check all 4 directions
+                const directions = [
+                    [0, 1],  // horizontal
+                    [1, 0],  // vertical
+                    [1, 1],  // diagonal /
+                    [1, -1]  // diagonal \
+                ];
+
+                for (let [dr, dc] of directions) {
+                    const winningCells = this.checkDirection(row, col, dr, dc, player);
+                    if (winningCells.length >= 4) {
+                        this.winningCells = winningCells;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            checkDirection(startRow, startCol, dr, dc, player) {
+                let cells = [{row: startRow, col: startCol}]; // Include the current piece
+                
+                // Check forward direction
+                for (let i = 1; i < 4; i++) {
+                    const newRow = (startRow + i * dr + this.rows) % this.rows;
+                    const newCol = (startCol + i * dc + this.cols) % this.cols;
+                    
+                    if (this.board[newRow][newCol] === player) {
+                        cells.push({row: newRow, col: newCol});
+                    } else {
+                        break;
+                    }
+                }
+                
+                // Check backward direction
+                for (let i = 1; i < 4; i++) {
+                    const newRow = (startRow - i * dr + this.rows) % this.rows;
+                    const newCol = (startCol - i * dc + this.cols) % this.cols;
+                    
+                    if (this.board[newRow][newCol] === player) {
+                        cells.unshift({row: newRow, col: newCol});
+                    } else {
+                        break;
+                    }
+                }
+                
+                return cells;
+            }
+
+            isBoardFull() {
+                return this.board.every(row => row.every(cell => cell !== 0));
+            }
+
+            updateDisplay() {
+                // Update board display
+                const cells = document.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    const row = parseInt(cell.dataset.row);
+                    const col = parseInt(cell.dataset.col);
+                    const value = this.board[row][col];
+                    
+                    cell.className = 'cell';
+                    if (value === 1) {
+                        cell.className += ' player1 occupied';
+                        cell.textContent = '×';
+                    } else if (value === 2) {
+                        cell.className += ' player2 occupied';
+                        cell.textContent = '○';
+                    } else {
+                        cell.textContent = '';
+                    }
+
+                    // Highlight winning cells
+                    if (this.winningCells.some(winCell => winCell.row === row && winCell.col === col)) {
+                        cell.className += ' winning';
+                    }
+                });
+
+                // Update player indicator
+                const playerIndicator = document.getElementById('playerIndicator');
+                const playerName = document.getElementById('playerName');
+                const gameStatus = document.getElementById('gameStatus');
+
+                if (this.gameOver) {
+                    if (this.winner === 0) {
+                        gameStatus.textContent = "It's a tie!";
+                        gameStatus.className = 'game-status';
+                    } else {
+                        const winnerName = this.winner === 1 ? 'Player 1 (×)' : 'Player 2 (○)';
+                        gameStatus.textContent = `🎉 ${winnerName} Wins! 🎉`;
+                        gameStatus.className = 'game-status winner';
+                    }
+                } else {
+                    gameStatus.textContent = '';
+                    gameStatus.className = 'game-status';
+                    
+                    if (this.currentPlayer === 1) {
+                        playerIndicator.className = 'player-indicator player1';
+                        playerIndicator.textContent = '×';
+                        playerName.textContent = 'Player 1 (×)';
+                    } else {
+                        playerIndicator.className = 'player-indicator player2';
+                        playerIndicator.textContent = '○';
+                        playerName.textContent = 'Player 2 (○)';
+                    }
+                }
+            }
+        }
+
+        // Global game instance
+        let game = new Connect4Torus();
+
+        function resetGame() {
+            game = new Connect4Torus();
+        }
+
+        function toggleRules() {
+            const rulesContent = document.getElementById('rulesContent');
+            rulesContent.classList.toggle('show');
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new Connect4Torus();
+        });
+    </script>
+</body>
+</html>
