@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyclotron Motion — 2D Charged Particle in EM Fields</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0e17;
+    --bg-panel: #111827;
+    --bg-panel-hover: #1a2235;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-muted: #475569;
+    --accent-blue: #38bdf8;
+    --accent-cyan: #22d3ee;
+    --accent-orange: #fb923c;
+    --accent-red: #f87171;
+    --accent-green: #4ade80;
+    --accent-purple: #a78bfa;
+    --trail-glow: rgba(56, 189, 248, 0.15);
+    --particle: #38bdf8;
+    --guide-center: #fb923c;
+    --analytic: rgba(74, 222, 128, 0.5);
+    --radius: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* Left panel */
+  .controls {
+    width: 340px;
+    min-width: 340px;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  .controls::-webkit-scrollbar { width: 4px; }
+  .controls::-webkit-scrollbar-track { background: transparent; }
+  .controls::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .panel-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--accent-cyan);
+    margin-bottom: 4px;
+  }
+
+  .panel-header p {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .section {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .param-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .param-row:last-child { margin-bottom: 0; }
+
+  .param-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .param-label .symbol {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .param-label .unit {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .param-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 110px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  }
+
+  .param-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-blue);
+    min-width: 42px;
+    text-align: right;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  button {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex: 1;
+  }
+
+  button:hover {
+    background: var(--bg-panel-hover);
+    border-color: var(--accent-blue);
+  }
+
+  button.primary {
+    background: var(--accent-blue);
+    color: var(--bg);
+    border-color: var(--accent-blue);
+  }
+
+  button.primary:hover {
+    background: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+  }
+
+  button.danger {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+  }
+
+  button.danger:hover {
+    background: rgba(248, 113, 113, 0.1);
+  }
+
+  /* Readouts */
+  .readouts {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .readout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .readout {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+
+  .readout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .readout-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent-cyan);
+  }
+
+  .readout-value.orange { color: var(--accent-orange); }
+  .readout-value.green { color: var(--accent-green); }
+  .readout-value.purple { color: var(--accent-purple); }
+
+  /* Theory box */
+  .theory-box {
+    padding: 16px 24px;
+  }
+
+  .theory-box .section-title { margin-bottom: 10px; }
+
+  .eq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    white-space: pre-wrap;
+  }
+
+  .eq .hl { color: var(--accent-cyan); }
+  .eq .or { color: var(--accent-orange); }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .legend-line {
+    width: 16px;
+    height: 2px;
+    border-radius: 1px;
+  }
+
+  /* Canvas area */
+  .canvas-wrap {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  .canvas-overlay {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .canvas-overlay .time {
+    color: var(--accent-cyan);
+    font-size: 13px;
+  }
+
+  /* Toggle switches */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .toggle-label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+
+  .toggle input:checked + .toggle-track {
+    background: var(--accent-blue);
+  }
+
+  .toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--text);
+    border-radius: 50%;
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+
+  .toggle input:checked ~ .toggle-knob {
+    transform: translateX(16px);
+  }
+
+  .speed-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-purple);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  @media (max-width: 800px) {
+    body { flex-direction: column; }
+    .controls { width: 100%; min-width: unset; max-height: 45vh; border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <div class="panel-header">
+    <h1>⟨ Cyclotron Sim ⟩</h1>
+    <p>2D charged particle in uniform <strong>B</strong> and <strong>E</strong> fields. Equations of motion from Hamiltonian mechanics.</p>
+  </div>
+
+  <!-- Field parameters -->
+  <div class="section">
+    <div class="section-title">Fields</div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">B</span> <span class="unit">(T)</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="B" min="0.1" max="5" step="0.1" value="1">
+        <span class="param-value" id="B-val">1.0</span>
+      </div>
+    </div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">E</span> <span class="unit">(V/m)</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="E" min="0" max="5" step="0.1" value="0">
+        <span class="param-value" id="E-val">0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Particle -->
+  <div class="section">
+    <div class="section-title">Particle</div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">e/m</span> <span class="unit">(C/kg)</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="em" min="0.5" max="5" step="0.1" value="1">
+        <span class="param-value" id="em-val">1.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Initial conditions -->
+  <div class="section">
+    <div class="section-title">Initial Conditions</div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">x₀</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="x0" min="-5" max="5" step="0.1" value="0">
+        <span class="param-value" id="x0-val">0.0</span>
+      </div>
+    </div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">y₀</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="y0" min="-5" max="5" step="0.1" value="0">
+        <span class="param-value" id="y0-val">0.0</span>
+      </div>
+    </div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">vx₀</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="vx0" min="-5" max="5" step="0.1" value="1">
+        <span class="param-value" id="vx0-val">1.0</span>
+      </div>
+    </div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">vy₀</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="vy0" min="-5" max="5" step="0.1" value="0">
+        <span class="param-value" id="vy0-val">0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Display options -->
+  <div class="section">
+    <div class="section-title">Display</div>
+    <div class="toggle-row">
+      <span class="toggle-label">Show analytic solution</span>
+      <label class="toggle">
+        <input type="checkbox" id="showAnalytic" checked>
+        <span class="toggle-track"></span>
+        <span class="toggle-knob"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">Show guiding center</span>
+      <label class="toggle">
+        <input type="checkbox" id="showGuide" checked>
+        <span class="toggle-track"></span>
+        <span class="toggle-knob"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">Show velocity vector</span>
+      <label class="toggle">
+        <input type="checkbox" id="showVel" checked>
+        <span class="toggle-track"></span>
+        <span class="toggle-knob"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">Show E field arrows</span>
+      <label class="toggle">
+        <input type="checkbox" id="showEField">
+        <span class="toggle-track"></span>
+        <span class="toggle-knob"></span>
+      </label>
+    </div>
+    <div class="param-row">
+      <div class="param-label"><span class="symbol">Speed</span></div>
+      <div class="param-input-wrap">
+        <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1">
+        <span class="speed-label" id="speed-val">1×</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="section">
+    <div class="btn-row">
+      <button class="primary" id="btnPlay">▶ Play</button>
+      <button id="btnStep">⏭ Step</button>
+      <button class="danger" id="btnReset">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Readouts -->
+  <div class="readouts">
+    <div class="section-title">Live Readouts</div>
+    <div class="readout-grid">
+      <div class="readout">
+        <div class="readout-label">Position</div>
+        <div class="readout-value" id="ro-pos">(0, 0)</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">Velocity</div>
+        <div class="readout-value" id="ro-vel">(0, 0)</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">ωc (cyc. freq)</div>
+        <div class="readout-value orange" id="ro-wc">1.00</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">E×B drift</div>
+        <div class="readout-value green" id="ro-drift">0.00</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">Larmor radius</div>
+        <div class="readout-value purple" id="ro-rl">1.00</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">Energy</div>
+        <div class="readout-value orange" id="ro-energy">0.50</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theory -->
+  <div class="theory-box">
+    <div class="section-title">Equations of Motion</div>
+    <div class="eq"><span class="hl">m ẍ = eB ẏ + eE</span>
+<span class="hl">m ÿ = −eB ẋ</span>
+
+Drift velocity:  <span class="or">v_drift = E/B  (ŷ direction)</span>
+Cyclotron freq:  <span class="or">ωc = eB/m</span>
+Larmor radius:   <span class="or">rL = v⊥ / ωc</span></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent-blue);box-shadow:0 0 6px var(--accent-blue)"></div>Numerical (RK4)</div>
+      <div class="legend-item"><div class="legend-line" style="background:var(--accent-green)"></div>Analytic</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent-orange)"></div>Guiding center</div>
+    </div>
+  </div>
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="canvas"></canvas>
+  <div class="canvas-overlay">
+    <div>t = <span class="time" id="timeDisplay">0.000</span></div>
+  </div>
+</div>
+
+<script>
+// ========== PHYSICS ENGINE ==========
+// From the homework and exam solutions:
+//
+// Hamiltonian: H = ½m v² − eEx
+// where v = (1/m)(p − eA), A = ½B×r (symmetric gauge)
+//
+// Equations of motion (derived in HW7 solutions, eq 2.12, and exam Q4):
+//   m ẍ = eB ẏ + eE
+//   m ÿ = −eB ẋ
+//
+// Analytic solution (pure B + uniform E):
+//   Define ωc = eB/m, v_drift = E/B
+//
+//   Let u = ẋ, w = ẏ − v_drift
+//   Then: u̇ = ωc(w + v_drift) + eE/m − ωc·v_drift = ωc·w
+//   And:  ẇ = −ωc·u
+//   So u + iw satisfies d/dt(u+iw) = -iωc(u+iw)
+//   => u+iw = C·exp(-iωc t)
+//
+//   x(t) = x_gc(t) + R sin(ωc t + φ₀)
+//   y(t) = y_gc(t) + R cos(ωc t + φ₀)
+//
+//   where guiding center drifts: x_gc = const, y_gc = y_gc0 + v_drift · t
+//   R = v_perp / ωc  (Larmor radius, v_perp = speed in guiding center frame)
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// State
+let state = { x: 0, y: 0, vx: 1, vy: 0 };
+let trail = [];
+let analyticTrail = [];
+let time = 0;
+let running = false;
+let animId = null;
+const MAX_TRAIL = 8000;
+
+// Camera (auto-follow)
+let camX = 0, camY = 0;
+let camTargetX = 0, camTargetY = 0;
+let scale = 50; // pixels per unit
+
+function getParams() {
+  const B = parseFloat(document.getElementById('B').value);
+  const E = parseFloat(document.getElementById('E').value);
+  const em = parseFloat(document.getElementById('em').value);
+  const x0 = parseFloat(document.getElementById('x0').value);
+  const y0 = parseFloat(document.getElementById('y0').value);
+  const vx0 = parseFloat(document.getElementById('vx0').value);
+  const vy0 = parseFloat(document.getElementById('vy0').value);
+  const speed = parseFloat(document.getElementById('speed').value);
+  return { B, E, em, x0, y0, vx0, vy0, speed };
+}
+
+function getDerivedQuantities(p) {
+  const wc = p.em * p.B;              // ωc = eB/m = (e/m)*B
+  const vdrift = p.B > 0.001 ? p.E / p.B : 0;  // E×B drift = E/B in y-direction
+  return { wc, vdrift };
+}
+
+// RK4 integration of:
+//   ẍ = (e/m)*B*ẏ + (e/m)*E
+//   ÿ = -(e/m)*B*ẋ
+// State vector: [x, y, vx, vy]
+function derivs(s, p) {
+  const { em, B, E } = p;
+  return {
+    dx: s.vx,
+    dy: s.vy,
+    dvx: em * B * s.vy + em * E,
+    dvy: -em * B * s.vx
+  };
+}
+
+function rk4Step(s, dt, p) {
+  const k1 = derivs(s, p);
+  const s2 = {
+    x: s.x + 0.5*dt*k1.dx, y: s.y + 0.5*dt*k1.dy,
+    vx: s.vx + 0.5*dt*k1.dvx, vy: s.vy + 0.5*dt*k1.dvy
+  };
+  const k2 = derivs(s2, p);
+  const s3 = {
+    x: s.x + 0.5*dt*k2.dx, y: s.y + 0.5*dt*k2.dy,
+    vx: s.vx + 0.5*dt*k2.dvx, vy: s.vy + 0.5*dt*k2.dvy
+  };
+  const k3 = derivs(s3, p);
+  const s4 = {
+    x: s.x + dt*k3.dx, y: s.y + dt*k3.dy,
+    vx: s.vx + dt*k3.dvx, vy: s.vy + dt*k3.dvy
+  };
+  const k4 = derivs(s4, p);
+  return {
+    x:  s.x  + (dt/6)*(k1.dx  + 2*k2.dx  + 2*k3.dx  + k4.dx),
+    y:  s.y  + (dt/6)*(k1.dy  + 2*k2.dy  + 2*k3.dy  + k4.dy),
+    vx: s.vx + (dt/6)*(k1.dvx + 2*k2.dvx + 2*k3.dvx + k4.dvx),
+    vy: s.vy + (dt/6)*(k1.dvy + 2*k2.dvy + 2*k3.dvy + k4.dvy)
+  };
+}
+
+// ========== ANALYTIC SOLUTION ==========
+// From the solutions: with E in x-direction and B in z-direction,
+// the general solution is cyclotron motion + E×B drift in y.
+//
+// In the frame co-moving with the drift (v_drift = E/B in ŷ):
+//   ẋ = v_perp_x cos(ωc t + φ₀) − v_perp_y sin(ωc t + φ₀)   ... but let me be precise.
+//
+// EOM: ẍ = ωc ẏ + (e/m)E,  ÿ = -ωc ẋ
+// Let u = ẋ, w = ẏ - E/B.  Then u̇ = ωc·w, ẇ = -ωc·u.
+// So u(t) = A cos(ωc t + φ), w(t) = A sin(ωc t + φ)
+//   (note the sign: d/dt(u - iw) = ωc(w + iu) = iωc(u - iw), so u - iw = C e^{iωc t})
+//
+// Actually let me be very careful. u̇ = ωc·w, ẇ = -ωc·u.
+// Let Z = u + iw. Then Ż = u̇ + iẇ = ωc w - iωc u = -iωc(u + iw) = -iωc Z
+// So Z = Z₀ e^{-iωc t}
+// Z₀ = u(0) + iw(0) = vx₀ + i(vy₀ - v_drift)
+// |Z₀| = v_perp (speed in drift frame)
+//
+// u(t) = Re[Z₀ e^{-iωc t}] = vx₀ cos(ωc t) + (vy₀ - vd) sin(ωc t)
+// w(t) = Im[Z₀ e^{-iωc t}] = (vy₀ - vd) cos(ωc t) - vx₀ sin(ωc t)
+//
+// x(t) = x₀ + (1/ωc)[vx₀ sin(ωc t) - (vy₀ - vd)(cos(ωc t) - 1)]
+// y(t) = y₀ + vd·t + (1/ωc)[-(vy₀ - vd) sin(ωc t) - vx₀(cos(ωc t) - 1)]
+//       = y₀ + vd·t + (1/ωc)[vx₀(1 - cos(ωc t)) - (vy₀ - vd) sin(ωc t)]
+
+function analyticPos(t, p) {
+  const { wc, vdrift } = getDerivedQuantities(p);
+  if (wc < 1e-6) {
+    // No magnetic field: straight line with acceleration
+    return {
+      x: p.x0 + p.vx0 * t + 0.5 * p.em * p.E * t * t,
+      y: p.y0 + p.vy0 * t
+    };
+  }
+  const vd = vdrift;
+  const c = Math.cos(wc * t);
+  const s = Math.sin(wc * t);
+  const wvy = p.vy0 - vd;
+
+  const x = p.x0 + (1/wc) * (p.vx0 * s - wvy * (c - 1));
+  const y = p.y0 + vd * t + (1/wc) * (p.vx0 * (1 - c) - wvy * s);
+  return { x, y };
+}
+
+function guidingCenter(t, p) {
+  const { wc, vdrift } = getDerivedQuantities(p);
+  if (wc < 1e-6) return { x: p.x0, y: p.y0 };
+  const vd = vdrift;
+  const wvy = p.vy0 - vd;
+  // Guiding center = position minus the gyration part
+  // x_gc = x₀ + (vy₀ - vd)/ωc
+  // y_gc = y₀ + vd·t - vx₀/ωc
+  const xgc = p.x0 + wvy / wc;
+  const ygc = p.y0 - p.vx0 / wc + vd * t;
+  return { x: xgc, y: ygc };
+}
+
+// ========== RENDERING ==========
+function resize() {
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth * devicePixelRatio;
+  canvas.height = wrap.clientHeight * devicePixelRatio;
+  canvas.style.width = wrap.clientWidth + 'px';
+  canvas.style.height = wrap.clientHeight + 'px';
+}
+
+function toScreen(wx, wy) {
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const s = scale * devicePixelRatio;
+  return {
+    sx: cx + (wx - camX) * s,
+    sy: cy - (wy - camY) * s  // flip y
+  };
+}
+
+function drawGrid() {
+  const s = scale * devicePixelRatio;
+  const w = canvas.width;
+  const h = canvas.height;
+
+  // Determine grid spacing
+  let gridUnit = 1;
+  if (s < 20) gridUnit = 5;
+  if (s < 8) gridUnit = 10;
+  if (s > 100) gridUnit = 0.5;
+
+  ctx.strokeStyle = 'rgba(30, 41, 59, 0.6)';
+  ctx.lineWidth = 1;
+
+  const left = camX - w / (2 * s);
+  const right = camX + w / (2 * s);
+  const bottom = camY - h / (2 * s);
+  const top = camY + h / (2 * s);
+
+  const startX = Math.floor(left / gridUnit) * gridUnit;
+  const startY = Math.floor(bottom / gridUnit) * gridUnit;
+
+  for (let gx = startX; gx <= right; gx += gridUnit) {
+    const { sx } = toScreen(gx, 0);
+    ctx.beginPath();
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx, h);
+    ctx.stroke();
+  }
+  for (let gy = startY; gy <= top; gy += gridUnit) {
+    const { sy } = toScreen(0, gy);
+    ctx.beginPath();
+    ctx.moveTo(0, sy);
+    ctx.lineTo(w, sy);
+    ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle = 'rgba(100, 116, 139, 0.4)';
+  ctx.lineWidth = 1.5;
+  const { sx: ox } = toScreen(0, 0);
+  const { sy: oy } = toScreen(0, 0);
+  ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, h); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(w, oy); ctx.stroke();
+}
+
+function drawEFieldArrows() {
+  if (!document.getElementById('showEField').checked) return;
+  const p = getParams();
+  if (p.E < 0.01) return;
+
+  const s = scale * devicePixelRatio;
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.strokeStyle = 'rgba(251, 146, 60, 0.2)';
+  ctx.fillStyle = 'rgba(251, 146, 60, 0.25)';
+  ctx.lineWidth = 1.5;
+
+  const spacing = 3;
+  const left = camX - w / (2 * s);
+  const right = camX + w / (2 * s);
+  const bottom = camY - h / (2 * s);
+  const top = camY + h / (2 * s);
+
+  const startX = Math.floor(left / spacing) * spacing;
+  const startY = Math.floor(bottom / spacing) * spacing;
+
+  for (let gy = startY; gy <= top; gy += spacing) {
+    for (let gx = startX; gx <= right; gx += spacing) {
+      const { sx, sy } = toScreen(gx, gy);
+      const arrowLen = 18 * devicePixelRatio;
+      ctx.beginPath();
+      ctx.moveTo(sx - arrowLen/2, sy);
+      ctx.lineTo(sx + arrowLen/2, sy);
+      ctx.stroke();
+      // arrowhead pointing right (E in x-direction)
+      ctx.beginPath();
+      ctx.moveTo(sx + arrowLen/2, sy);
+      ctx.lineTo(sx + arrowLen/2 - 4*devicePixelRatio, sy - 3*devicePixelRatio);
+      ctx.lineTo(sx + arrowLen/2 - 4*devicePixelRatio, sy + 3*devicePixelRatio);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+}
+
+function drawTrail(trailArr, color, width, dashed) {
+  if (trailArr.length < 2) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width * devicePixelRatio;
+  if (dashed) ctx.setLineDash([6*devicePixelRatio, 4*devicePixelRatio]);
+  else ctx.setLineDash([]);
+
+  ctx.beginPath();
+  let first = true;
+  for (const pt of trailArr) {
+    const { sx, sy } = toScreen(pt.x, pt.y);
+    if (first) { ctx.moveTo(sx, sy); first = false; }
+    else ctx.lineTo(sx, sy);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawParticle(x, y, vx, vy) {
+  const { sx, sy } = toScreen(x, y);
+  const r = 6 * devicePixelRatio;
+
+  // Glow
+  const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 4);
+  grad.addColorStop(0, 'rgba(56, 189, 248, 0.4)');
+  grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(sx, sy, r * 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Particle
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(sx, sy, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Velocity vector
+  if (document.getElementById('showVel').checked) {
+    const vscale = 20 * devicePixelRatio;
+    const ex = sx + vx * vscale;
+    const ey = sy - vy * vscale; // flip y
+    ctx.strokeStyle = 'rgba(248, 113, 113, 0.8)';
+    ctx.lineWidth = 2 * devicePixelRatio;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    // Arrowhead
+    const angle = Math.atan2(-(vy), vx); // screen coords
+    const aLen = 8 * devicePixelRatio;
+    ctx.fillStyle = 'rgba(248, 113, 113, 0.8)';
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - aLen * Math.cos(angle - 0.4), ey + aLen * Math.sin(angle - 0.4));
+    ctx.lineTo(ex - aLen * Math.cos(angle + 0.4), ey + aLen * Math.sin(angle + 0.4));
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawGuidingCenter(t, p) {
+  if (!document.getElementById('showGuide').checked) return;
+  const gc = guidingCenter(t, p);
+  const { sx, sy } = toScreen(gc.x, gc.y);
+  const r = 4 * devicePixelRatio;
+
+  ctx.strokeStyle = 'rgba(251, 146, 60, 0.6)';
+  ctx.lineWidth = 1.5 * devicePixelRatio;
+  ctx.setLineDash([3*devicePixelRatio, 3*devicePixelRatio]);
+  ctx.beginPath();
+  ctx.arc(sx, sy, r + 4*devicePixelRatio, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#fb923c';
+  ctx.beginPath();
+  ctx.arc(sx, sy, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw line from guiding center to particle
+  const ps = toScreen(state.x, state.y);
+  ctx.strokeStyle = 'rgba(251, 146, 60, 0.2)';
+  ctx.lineWidth = 1 * devicePixelRatio;
+  ctx.setLineDash([4*devicePixelRatio, 4*devicePixelRatio]);
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ps.sx, ps.sy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawBFieldIndicator() {
+  const p = getParams();
+  const r = 14 * devicePixelRatio;
+  const cx = 30 * devicePixelRatio;
+  const cy = canvas.height - 30 * devicePixelRatio;
+
+  ctx.strokeStyle = 'rgba(100, 116, 139, 0.5)';
+  ctx.lineWidth = 1.5 * devicePixelRatio;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Dot in center = B out of page
+  ctx.fillStyle = 'rgba(100, 116, 139, 0.6)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3 * devicePixelRatio, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(100, 116, 139, 0.5)';
+  ctx.font = `${10 * devicePixelRatio}px "JetBrains Mono"`;
+  ctx.textAlign = 'left';
+  ctx.fillText('B ⊙ ẑ', cx + r + 6*devicePixelRatio, cy + 4*devicePixelRatio);
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const p = getParams();
+
+  // Smooth camera follow
+  camTargetX = state.x;
+  camTargetY = state.y;
+  camX += (camTargetX - camX) * 0.05;
+  camY += (camTargetY - camY) * 0.05;
+
+  drawGrid();
+  drawEFieldArrows();
+  drawBFieldIndicator();
+
+  // Analytic trail
+  if (document.getElementById('showAnalytic').checked) {
+    drawTrail(analyticTrail, 'rgba(74, 222, 128, 0.35)', 1.5, true);
+  }
+
+  // Numerical trail (with fading)
+  if (trail.length > 1) {
+    const s2 = scale * devicePixelRatio;
+    for (let i = 1; i < trail.length; i++) {
+      const alpha = 0.15 + 0.85 * (i / trail.length);
+      ctx.strokeStyle = `rgba(56, 189, 248, ${alpha * 0.7})`;
+      ctx.lineWidth = (1 + 1.5 * (i / trail.length)) * devicePixelRatio;
+      const p1 = toScreen(trail[i-1].x, trail[i-1].y);
+      const p2 = toScreen(trail[i].x, trail[i].y);
+      ctx.beginPath();
+      ctx.moveTo(p1.sx, p1.sy);
+      ctx.lineTo(p2.sx, p2.sy);
+      ctx.stroke();
+    }
+  }
+
+  drawGuidingCenter(time, p);
+  drawParticle(state.x, state.y, state.vx, state.vy);
+
+  // Update readouts
+  document.getElementById('ro-pos').textContent =
+    `(${state.x.toFixed(2)}, ${state.y.toFixed(2)})`;
+  document.getElementById('ro-vel').textContent =
+    `(${state.vx.toFixed(2)}, ${state.vy.toFixed(2)})`;
+
+  const { wc, vdrift } = getDerivedQuantities(p);
+  document.getElementById('ro-wc').textContent = wc.toFixed(2);
+  document.getElementById('ro-drift').textContent = vdrift.toFixed(3);
+
+  const vperp = Math.sqrt((state.vx)**2 + (state.vy - vdrift)**2);
+  const rL = wc > 1e-6 ? vperp / wc : 0;
+  document.getElementById('ro-rl').textContent = rL.toFixed(3);
+
+  // Total energy = ½m v² − eEx.  With m=1 (using e/m ratio), H = ½v² − (e/m)Ex
+  const energy = 0.5*(state.vx**2 + state.vy**2) - p.em * p.E * state.x;
+  document.getElementById('ro-energy').textContent = energy.toFixed(3);
+}
+
+// ========== SIMULATION LOOP ==========
+const DT_BASE = 0.002;
+const STEPS_PER_FRAME = 20;
+
+function step() {
+  const p = getParams();
+  const dt = DT_BASE;
+
+  for (let i = 0; i < STEPS_PER_FRAME * p.speed; i++) {
+    state = rk4Step(state, dt, p);
+    time += dt;
+
+    // Record trails every few steps
+    if (i % 2 === 0) {
+      trail.push({ x: state.x, y: state.y });
+      if (trail.length > MAX_TRAIL) trail.shift();
+
+      if (document.getElementById('showAnalytic').checked) {
+        const ap = analyticPos(time, p);
+        analyticTrail.push({ x: ap.x, y: ap.y });
+        if (analyticTrail.length > MAX_TRAIL) analyticTrail.shift();
+      }
+    }
+  }
+
+  document.getElementById('timeDisplay').textContent = time.toFixed(3);
+}
+
+function loop() {
+  if (!running) return;
+  step();
+  render();
+  animId = requestAnimationFrame(loop);
+}
+
+function resetSim() {
+  running = false;
+  if (animId) cancelAnimationFrame(animId);
+  const p = getParams();
+  state = { x: p.x0, y: p.y0, vx: p.vx0, vy: p.vy0 };
+  time = 0;
+  trail = [{ x: state.x, y: state.y }];
+  analyticTrail = [{ x: state.x, y: state.y }];
+  camX = state.x;
+  camY = state.y;
+  document.getElementById('timeDisplay').textContent = '0.000';
+  document.getElementById('btnPlay').textContent = '▶ Play';
+  render();
+}
+
+// ========== EVENT HANDLERS ==========
+document.getElementById('btnPlay').addEventListener('click', () => {
+  running = !running;
+  document.getElementById('btnPlay').textContent = running ? '⏸ Pause' : '▶ Play';
+  if (running) loop();
+});
+
+document.getElementById('btnStep').addEventListener('click', () => {
+  if (running) return;
+  step();
+  render();
+});
+
+document.getElementById('btnReset').addEventListener('click', resetSim);
+
+// Slider value displays
+const sliders = ['B', 'E', 'em', 'x0', 'y0', 'vx0', 'vy0', 'speed'];
+sliders.forEach(id => {
+  const el = document.getElementById(id);
+  const valEl = document.getElementById(id + '-val');
+  el.addEventListener('input', () => {
+    if (id === 'speed') {
+      valEl.textContent = parseFloat(el.value).toFixed(0) + '×';
+    } else {
+      valEl.textContent = parseFloat(el.value).toFixed(1);
+    }
+  });
+});
+
+// Zoom
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const factor = e.deltaY > 0 ? 0.9 : 1.1;
+  scale = Math.max(5, Math.min(300, scale * factor));
+  if (!running) render();
+}, { passive: false });
+
+// Resize
+window.addEventListener('resize', () => { resize(); if (!running) render(); });
+
+// Init
+resize();
+resetSim();
+</script>
+</body>
+</html>
