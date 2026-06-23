@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Double Helix &mdash; Screw Symmetry</title>
+    <style>
+        :root {
+            --primary-red: #d64045;
+            --light-pink: #ff9eaa;
+            --off-white: #f7f7f2;
+            --dark-red: #851d41;
+            --strand-a: #00ddff;
+            --strand-b: #ff5da2;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: #05070d;
+            color: #f7f7f2;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        #canvas-host { position: fixed; inset: 0; }
+
+        /* ---- Control panel ---- */
+        .panel {
+            position: fixed;
+            top: 18px; left: 18px;
+            width: 340px;
+            max-width: calc(100vw - 36px);
+            max-height: calc(100vh - 36px);
+            overflow-y: auto;
+            background: rgba(10, 12, 20, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 20px 20px 16px;
+            z-index: 20;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .panel h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            margin-bottom: 2px;
+        }
+        .panel .sub {
+            font-size: 0.78rem;
+            color: var(--light-pink);
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .mode-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .mode-btn {
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.04);
+            color: #f7f7f2;
+            padding: 11px 13px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 600;
+            transition: all 0.18s ease;
+            line-height: 1.25;
+        }
+        .mode-btn small {
+            display: block;
+            font-weight: 400;
+            font-size: 0.72rem;
+            color: rgba(247,247,242,0.6);
+            margin-top: 3px;
+        }
+        .mode-btn:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); }
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            border-color: var(--light-pink);
+            box-shadow: 0 4px 18px rgba(214,64,69,0.35);
+        }
+        .mode-btn.active small { color: rgba(255,255,255,0.85); }
+
+        .row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        .row label { font-size: 0.8rem; color: rgba(247,247,242,0.85); min-width: 78px; }
+        input[type=range] { flex: 1; accent-color: var(--primary-red); }
+        .btn-row { display: flex; gap: 8px; margin-top: 6px; }
+        .small-btn {
+            flex: 1;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.05);
+            color: #f7f7f2;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.18s ease;
+        }
+        .small-btn:hover { background: rgba(255,255,255,0.1); }
+
+        .hud {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            font-size: 0.8rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 10px;
+        }
+        .hud .k { color: rgba(247,247,242,0.55); }
+        .hud .v { color: var(--strand-a); font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+
+        .explain {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            font-size: 0.78rem;
+            line-height: 1.5;
+            color: rgba(247,247,242,0.82);
+        }
+        .explain b { color: var(--light-pink); }
+        .verdict {
+            margin-top: 10px;
+            padding: 9px 11px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        .verdict.moving { background: rgba(214,64,69,0.18); border: 1px solid rgba(214,64,69,0.5); }
+        .verdict.frozen { background: rgba(0,221,255,0.12); border: 1px solid rgba(0,221,255,0.45); }
+
+        .hint {
+            position: fixed;
+            bottom: 14px; right: 18px;
+            font-size: 0.72rem;
+            color: rgba(247,247,242,0.45);
+            z-index: 20;
+            text-align: right;
+            pointer-events: none;
+        }
+        .legend {
+            position: fixed;
+            top: 18px; right: 18px;
+            z-index: 20;
+            background: rgba(10,12,20,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 0.75rem;
+            line-height: 1.7;
+        }
+        .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+    </style>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div id="canvas-host"></div>
+
+    <div class="panel">
+        <h1>The Double Helix</h1>
+        <div class="sub">Screw symmetry &mdash; Q1, Part 7 (helical solenoid)</div>
+
+        <div class="mode-group">
+            <button class="mode-btn active" id="btn-translate">
+                Translate along&nbsp;z (no rotation)
+                <small>Slide straight up the axis. Watch the helix move.</small>
+            </button>
+            <button class="mode-btn" id="btn-screw">
+                Co-rotating screw frame
+                <small>Translate by &epsilon; <i>and</i> rotate by &alpha;&nbsp;=&nbsp;k&epsilon;. The helix freezes.</small>
+            </button>
+        </div>
+
+        <div class="row">
+            <label>Speed</label>
+            <input type="range" id="speed" min="0" max="100" value="42">
+        </div>
+        <div class="btn-row">
+            <button class="small-btn" id="btn-play">&#10073;&#10073; Pause</button>
+            <button class="small-btn" id="btn-reset">&#8635; Reset</button>
+        </div>
+
+        <div class="hud">
+            <span class="k">Pitch&nbsp;d</span><span class="v" id="hud-pitch"></span>
+            <span class="k">k = 2&pi;/d</span><span class="v" id="hud-k"></span>
+            <span class="k">z travelled</span><span class="v" id="hud-z"></span>
+            <span class="k">rotation &alpha;</span><span class="v" id="hud-rot"></span>
+        </div>
+
+        <div class="verdict moving" id="verdict">
+            <b>Pure translation is not a symmetry.</b> As you slide along z without
+            rotating, the helix visibly drifts &mdash; the geometry you see keeps changing.
+        </div>
+
+        <div class="explain">
+            An infinite helix is unchanged only by a <b>combined</b> move: a shift
+            \(\epsilon\hat z\) along the axis together with a rotation
+            \(\alpha=k\epsilon\) about it. Infinitesimally
+            \(\vec r\,'=\vec r+\epsilon(\hat z+k\,\hat z\times\vec r)\), so the
+            symmetry generator is \(\vec a=\hat z+k\,\hat z\times\vec r\) (the yellow
+            arrow &mdash; it lies tangent to the strand). With pitch \(d\),
+            \(k=2\pi/d\). By Noether's theorem the conserved quantity is
+            \(Q=\vec p\cdot\vec a = p_z + k\,J_z\).
+        </div>
+    </div>
+
+    <div class="legend">
+        <div><span class="dot" style="background:#00ddff"></span>Strand A</div>
+        <div><span class="dot" style="background:#ff5da2"></span>Strand B</div>
+        <div><span class="dot" style="background:#ffd000"></span>Generator \(\vec a\)</div>
+        <div><span class="dot" style="background:#8899bb"></span>Reference dust</div>
+    </div>
+
+    <div class="hint">drag to orbit &middot; scroll to zoom</div>
+
+    <script>
+    (function () {
+        const host = document.getElementById('canvas-host');
+
+        // ---- Scene ----
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x05070d);
+        scene.fog = new THREE.Fog(0x05070d, 22, 46);
+
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 400);
+        camera.position.set(9, 5.5, 13);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        host.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.target.set(0, 0, 0);
+
+        // ---- Lights ----
+        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        const d1 = new THREE.DirectionalLight(0xffffff, 0.7); d1.position.set(6, 10, 8); scene.add(d1);
+        const d2 = new THREE.DirectionalLight(0x88aaff, 0.4); d2.position.set(-8, -6, -5); scene.add(d2);
+
+        // ---- Parameters ----
+        const R = 2.5;            // helix radius
+        const PITCH = 3.0;        // d : z-rise per full turn
+        const K = 2 * Math.PI / PITCH;
+        const Z_HALF = 30;        // helix built over [-Z_HALF, +Z_HALF]
+        const DUST_H = 60;        // dust wrap height
+
+        // ---- Faint z-axis ----
+        const axis = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.03, 0.03, Z_HALF * 2, 16),
+            new THREE.MeshBasicMaterial({ color: 0x556688, transparent: true, opacity: 0.35 })
+        );
+        axis.rotation.x = Math.PI / 2;
+        scene.add(axis);
+
+        // ===================================================================
+        //  worldGroup holds everything that participates in the frame motion.
+        //  Moving the observer up by s (and rotating by phi) is rendered by
+        //  applying the inverse transform to the world: rotate by -phi about
+        //  z, translate by -s along z.
+        // ===================================================================
+        const worldGroup = new THREE.Group();
+        scene.add(worldGroup);
+
+        // ---- Build one helical strand as a tube ----
+        function makeStrand(phase, color) {
+            const pts = [];
+            const steps = 1400;
+            for (let i = 0; i <= steps; i++) {
+                const z = -Z_HALF + (i / steps) * (2 * Z_HALF);
+                const th = K * z + phase;
+                pts.push(new THREE.Vector3(R * Math.cos(th), R * Math.sin(th), z));
+            }
+            const curve = new THREE.CatmullRomCurve3(pts);
+            const geo = new THREE.TubeGeometry(curve, 1600, 0.13, 12, false);
+            const mat = new THREE.MeshPhongMaterial({
+                color: color, emissive: color, emissiveIntensity: 0.28, shininess: 80
+            });
+            return new THREE.Mesh(geo, mat);
+        }
+        worldGroup.add(makeStrand(0, 0x00ddff));        // strand A
+        worldGroup.add(makeStrand(Math.PI, 0xff5da2));  // strand B
+
+        // ---- Helicoid ribbon joining the two strands (also screw-invariant) ----
+        (function () {
+            const nz = 600, nu = 2;
+            const positions = [], indices = [];
+            for (let i = 0; i <= nz; i++) {
+                const z = -Z_HALF + (i / nz) * (2 * Z_HALF);
+                const th = K * z;
+                const cx = Math.cos(th), sy = Math.sin(th);
+                for (let j = 0; j <= nu; j++) {
+                    const u = -1 + (2 * j) / nu;     // -1 -> strand B side, +1 -> strand A side
+                    positions.push(u * R * cx, u * R * sy, z);
+                }
+            }
+            const cols = nu + 1;
+            for (let i = 0; i < nz; i++) {
+                for (let j = 0; j < nu; j++) {
+                    const a = i * cols + j, b = a + cols;
+                    indices.push(a, b, a + 1, a + 1, b, b + 1);
+                }
+            }
+            const g = new THREE.BufferGeometry();
+            g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            g.setIndex(indices);
+            g.computeVertexNormals();
+            const m = new THREE.MeshPhongMaterial({
+                color: 0xaa88ff, transparent: true, opacity: 0.16,
+                side: THREE.DoubleSide, emissive: 0x3322aa, emissiveIntensity: 0.25,
+                depthWrite: false
+            });
+            worldGroup.add(new THREE.Mesh(g, m));
+        })();
+
+        // ---- Generator arrow  a = z_hat + k (z_hat x r)  at a sample point ----
+        // Sample on strand A at z = 0  ->  r = (R, 0, 0);  z_hat x r = (0, R, 0)
+        // so a = (0, k R, 1): tangent to the strand, pointing up the screw.
+        const aVec = new THREE.Vector3(0, K * R, 1);
+        const arrow = new THREE.ArrowHelper(
+            aVec.clone().normalize(),
+            new THREE.Vector3(R, 0, 0),
+            0.42 * aVec.length() + 1.4,
+            0xffd000, 0.55, 0.32
+        );
+        worldGroup.add(arrow);
+
+        // ---- Reference "dust": NOT helically symmetric, so it always moves. ----
+        const DUST_N = 520;
+        const dust0 = new Float32Array(DUST_N * 3);   // base positions
+        const dustPos = new Float32Array(DUST_N * 3); // current (rendered)
+        for (let i = 0; i < DUST_N; i++) {
+            const rad = 3.5 + Math.random() * 6.5;
+            const ang = Math.random() * Math.PI * 2;
+            dust0[i * 3]     = rad * Math.cos(ang);
+            dust0[i * 3 + 1] = rad * Math.sin(ang);
+            dust0[i * 3 + 2] = (Math.random() - 0.5) * DUST_H;
+        }
+        const dustGeo = new THREE.BufferGeometry();
+        dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+        const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+            color: 0x8899bb, size: 0.12, transparent: true, opacity: 0.7,
+            sizeAttenuation: true
+        }));
+        scene.add(dust);   // dust is transformed manually, not via worldGroup
+
+        // ===================================================================
+        //  State + UI
+        // ===================================================================
+        let mode = 'translate';   // 'translate' | 'screw'
+        let playing = true;
+        let speed = 0.42;         // base units of z per second at slider 42
+        let s = 0;                // accumulated z travelled by the observer
+
+        const btnT = document.getElementById('btn-translate');
+        const btnS = document.getElementById('btn-screw');
+        const btnPlay = document.getElementById('btn-play');
+        const btnReset = document.getElementById('btn-reset');
+        const speedEl = document.getElementById('speed');
+        const verdict = document.getElementById('verdict');
+
+        document.getElementById('hud-pitch').textContent = PITCH.toFixed(2);
+        document.getElementById('hud-k').textContent = K.toFixed(3);
+
+        function setMode(m) {
+            mode = m;
+            btnT.classList.toggle('active', m === 'translate');
+            btnS.classList.toggle('active', m === 'screw');
+            if (m === 'translate') {
+                verdict.className = 'verdict moving';
+                verdict.innerHTML = '<b>Pure translation is not a symmetry.</b> As you slide ' +
+                    'along z without rotating, the helix visibly drifts &mdash; the geometry you ' +
+                    'see keeps changing.';
+            } else {
+                verdict.className = 'verdict frozen';
+                verdict.innerHTML = '<b>Invariant!</b> Translating by &epsilon; while rotating by ' +
+                    '&alpha;&nbsp;=&nbsp;k&epsilon; leaves the helix <i>perfectly still</i> &mdash; you see ' +
+                    'precisely the same geometry. Only the dust reveals that you really are moving.';
+            }
+        }
+        btnT.onclick = () => setMode('translate');
+        btnS.onclick = () => setMode('screw');
+        btnPlay.onclick = () => {
+            playing = !playing;
+            btnPlay.innerHTML = playing ? '&#10073;&#10073; Pause' : '&#9658; Play';
+        };
+        btnReset.onclick = () => { s = 0; };
+        speedEl.oninput = () => { speed = (speedEl.value / 100) * 2.4; };
+        speed = (speedEl.value / 100) * 2.4;
+
+        // ===================================================================
+        //  Animation
+        // ===================================================================
+        const hudZ = document.getElementById('hud-z');
+        const hudRot = document.getElementById('hud-rot');
+        let last = null;
+
+        function applyDust(phiR) {
+            const cos = Math.cos(phiR), sin = Math.sin(phiR);
+            for (let i = 0; i < DUST_N; i++) {
+                const x0 = dust0[i * 3], y0 = dust0[i * 3 + 1], z0 = dust0[i * 3 + 2];
+                // translate down by s, wrap seamlessly within [-H/2, H/2]
+                let z = (((z0 - s + DUST_H / 2) % DUST_H) + DUST_H) % DUST_H - DUST_H / 2;
+                dustPos[i * 3]     = x0 * cos - y0 * sin;
+                dustPos[i * 3 + 1] = x0 * sin + y0 * cos;
+                dustPos[i * 3 + 2] = z;
+            }
+            dustGeo.attributes.position.needsUpdate = true;
+        }
+
+        function frame(t) {
+            requestAnimationFrame(frame);
+            if (last === null) last = t;
+            const dt = Math.min((t - last) / 1000, 0.05);
+            last = t;
+
+            if (playing) s += speed * dt;
+
+            const screw = (mode === 'screw');
+            // Inverse transform applied to the world. Rotation angle is -K*s,
+            // translation is -s. For the helix we may use s mod PITCH without any
+            // visible change (the helix has period PITCH under translation and
+            // K*PITCH = 2*pi under rotation), which keeps it on-screen forever.
+            const sMod = ((s % PITCH) + PITCH) % PITCH;
+            worldGroup.position.z = -sMod;
+            worldGroup.rotation.z = screw ? (-K * sMod) : 0;
+
+            // Dust uses the *full* s so it genuinely drifts (and swirls in screw mode).
+            applyDust(screw ? (-K * s) : 0);
+
+            controls.update();
+            renderer.render(scene, camera);
+
+            hudZ.textContent = s.toFixed(2);
+            const deg = screw ? ((K * s) * 180 / Math.PI) % 360 : 0;
+            hudRot.textContent = deg.toFixed(0) + '°';
+        }
+        requestAnimationFrame(frame);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    })();
+    </script>
+</body>
+</html>
