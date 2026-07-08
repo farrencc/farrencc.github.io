@@ -749,11 +749,11 @@
                 <span class="dot" style="background: var(--red-bright);"></span>
                 <span class="dot" style="background: var(--neon-orange);"></span>
                 <span class="dot" style="background: var(--neon-green);"></span>
-                <span style="margin-left: 6px;">casey@web - try `help`</span>
+                <span style="margin-left: 6px;">cas@web - try `help`</span>
             </div>
             <div class="terminal-out" id="termOut"></div>
             <div class="terminal-in">
-                <span class="ps1">casey@web:~$</span>
+                <span class="ps1">cas@web:~$</span>
                 <input id="termIn" type="text" autocomplete="off" spellcheck="false" aria-label="Terminal input - type help for commands">
             </div>
         </div>
@@ -815,6 +815,56 @@
 
             <div class="research-item" onclick="toggleResearch(this)">
                 <div class="research-title">
+                    <h3><span class="commit-hash">3d9f0ac</span>2026 - Capstone Thesis</h3>
+                    <div class="research-expand-icon"></div>
+                </div>
+                <div class="research-content">
+                    <div class="research-details">
+                        <p>My capstone thesis for the B.A. (Mod) in Theoretical Physics at <a href="https://www.maths.tcd.ie/" target="_blank">Trinity College's School of Mathematics</a>, supervised by <a target="_blank" href="https://www.maths.tcd.ie/~frolovs/">Prof. Sergey Frolov</a>: "Quantum Integrability: An Investigation of the Bethe Ansatz and its Application to the Hubbard Model". Starting from the classical foundations - Lax pairs, the classical \( r \)-matrix, and Hamiltonian reduction on coadjoint orbits - I built up to the quantum Yang-Baxter equation as the organising principle of quantum integrability, motivated through the Heisenberg spin chain and factorised scattering. The work culminates in solving the one-dimensional Hubbard model via both the coordinate and algebraic Bethe Ansatz, uncovering its hidden SO(4) symmetry and recovering the Lieb-Wu equations using graded vector spaces and Shastry's R-matrix. Along the way I studied the Calogero-Moser-Sutherland family and its duality with the quantum Hall effect, proposing a conjecture that placing the quantum Hall effect on a torus yields the elliptic Calogero-Sutherland model upon projection to the Lowest Landau Level. This is ongoing work.</p>
+
+
+                        <a href="./docs/Capstone_Final.pdf" target="_blank" class="publication-badge">
+                            📄 Find my thesis here
+
+                        </a>
+                        <a href="./docs/Capstone_Talk_Final.pdf" target="_blank" class="publication-badge">
+                            🗣️ Find my presentation here
+                        </a>
+                        <a href="./docs/Capstone_Poster_Final-2.pdf" target="_blank" class="publication-badge">
+                            🪧 Find my poster here
+
+                        </a>
+
+                        <div class="research-tags">
+                            <span class="research-tag">Quantum Integrability</span>
+                            <span class="research-tag">Bethe Ansatz</span>
+                            <span class="research-tag">Hubbard Model</span>
+                            <span class="research-tag">Mathematical Physics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="research-item" onclick="toggleResearch(this)">
+                <div class="research-title">
+                    <h3><span class="commit-hash">b7e1c05</span>2025 - CERN Summer Student Programme</h3>
+                    <div class="research-expand-icon"></div>
+                </div>
+                <div class="research-content">
+                    <div class="research-details">
+                        <p>As a <a href="https://home.cern/summer-student-programme" target="_blank">CERN Summer Student</a>, I developed <strong>Malta2FastSim</strong>, a fast Monte Carlo simulation module for the <a href="https://arxiv.org/abs/2304.01104" target="_blank">MALTA</a> monolithic active pixel sensor (DMAPS), built for the <a href="https://project-allpix-squared.web.cern.ch/" target="_blank">Allpix²</a> detector simulation framework. MALTA sensors - designed for the harsh radiation environment of the HL-LHC - use small 3 µm collection electrodes and asynchronous readout. My module ported the validated physics of the standalone PyMaltaSim into native C++, preserving charge-dependent timing delays, position-dependent charge collection and DAC-based threshold modelling. Two algorithmic contributions stand out: a <em>pixel-grouped accumulation</em> scheme that keeps detection efficiency intact under arbitrary trajectory resolution, and a <em>selective Highland multiple-scattering</em> treatment that recovers realistic cluster sizes for perpendicular test-beam tracks. The MALTA work was validated against test-beam data from the MALTA telescope at the CERN SPS. Please find my report <a target="_blank" href="./docs/CERN_Summer_Student_Report-2.pdf">here</a> for more info.</p>
+                        <div class="research-tags">
+                            <span class="research-tag">Silicon Detectors</span>
+                            <span class="research-tag">Monte Carlo Simulation</span>
+                            <span class="research-tag">DMAPS / CMOS Sensors</span>
+                            <span class="research-tag">C++</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="research-item" onclick="toggleResearch(this)">
+                <div class="research-title">
                     <h3><span class="commit-hash">a1f9e07</span>2025 - Hamilton Trust Internship</h3>
                     <div class="research-expand-icon"></div>
                 </div>
@@ -861,7 +911,13 @@
                 </div>
                 <div class="research-content">
                     <div class="research-details">
-                        <p>Democratic systems face a growing crisis of trust. This project tackles the challenge of fair electoral redistricting using computational methods from physics. Following a successful <a href="https://www.maths.tcd.ie/~tristan/SSG/index.html" target="_blank">hackathon</a> organized by TPSA and TCD's School of Mathematics, I developed a genetic algorithm approach to redistrict Irish electoral constituencies. This worked alongside a physics-based algorithm developed by <a href="https://www.maths.tcd.ie/~rcampion/">Ruaidhrí Campion</a>, forming a comprehensive dual approach to electoral fairness. The work continues through The Problem Solving Association CLG, aiming to restore institutional trust through transparent, algorithmic solutions.</p>
+                        <p>Democratic systems face a growing crisis of trust. This project tackles the challenge of fair electoral redistricting using computational methods from physics. Following a successful <a href="https://www.maths.tcd.ie/~tristan/SSG/index.html" target="_blank">hackathon</a> organized by TPSA and TCD's School of Mathematics, I developed a genetic algorithm approach to redistrict Irish electoral constituencies. This worked alongside a physics-based algorithm developed by <a href="https://www.maths.tcd.ie/~rcampion/">Ruaidhrí Campion</a>, forming a comprehensive dual approach to electoral fairness. The work continues through The Problem Solving Association CLG, aiming to restore institutional trust through transparent, algorithmic solutions. Since then a considerable amount of work has been done to refine the approach and to supplement our algorithm. You can read more about how our work is relevant to the current electoral discourse <a target="_blank" href="https://www.irishtimes.com/politics/2026/07/01/tcd-mathematicians-develop-a-formula-to-solve-constituency-boundary-conundrum/">here</a>. At present, we have released a preprint on Arixv and are finalising a submission to a journal.</p>
+
+                        <a href="https://arxiv.org/abs/2606.20637" target="_blank" class="publication-badge">
+                            📄 arXiv:2606.20637 - Constituency Optimisation Through Hamiltonian Representation Of Mandates (COTHROM): Algorithmic Redistricting of Irish Election Boundaries
+
+                        </a>
+
                         <div class="research-tags">
                             <span class="research-tag">Computational Physics</span>
                             <span class="research-tag">Social Systems</span>
