@@ -1,0 +1,204 @@
+/* ============================================================
+   Casey FC — Physics/Compute Design System · TOKENS
+   Source of truth: the design-system bundle (project/tokens/).
+   Two coexisting palettes:
+     PAPER      — warm red/white portfolio identity
+     INSTRUMENT — dark "exposed-mechanism" lab panels, red-forward
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ---- PAPER · brand core (portfolio) ---- */
+  --red-primary: #d64045;   /* the signature red — nav, headings, links */
+  --red-dark:    #851d41;   /* deep wine — gradient partner, footer */
+  --pink-light:  #ff9eaa;   /* soft coral — highlights, hovers, tags */
+  --red-bright:  #f0555a;   /* brighter red — the instrument accent on dark surfaces */
+  --off-white:   #f7f7f2;   /* warm paper — page background */
+  --ink:         #2d232e;   /* near-black aubergine — body text */
+  --white:       #ffffff;   /* card surfaces */
+
+  /* red tints for surfaces & states (rgba of --red-primary) */
+  --red-tint-08: rgba(214, 64, 69, 0.08);
+  --red-tint-12: rgba(214, 64, 69, 0.12);
+  --red-tint-20: rgba(214, 64, 69, 0.20);
+  --red-tint-30: rgba(214, 64, 69, 0.30);
+
+  /* ---- INSTRUMENT · dark lab (simulations) ---- */
+  --void:          #05070d;  /* deepest — 3D scene backdrop */
+  --bg:            #0a0e17;  /* instrument canvas / page */
+  --panel:         #111827;  /* panel surface */
+  --panel-hover:   #1a2235;  /* panel hover */
+  --border:        #1e293b;  /* hairline dividers, panel borders */
+  --text:          #e2e8f0;  /* panel text */
+  --text-dim:      #64748b;  /* labels, secondary */
+  --text-muted:    #475569;  /* tertiary, section eyebrows */
+
+  /* neon instrument accents — data channels & traces */
+  --neon-cyan:   #22d3ee;
+  --neon-blue:   #38bdf8;
+  --neon-orange: #fb923c;
+  --neon-green:  #4ade80;
+  --neon-purple: #a78bfa;
+  --neon-red:    #f87171;
+
+  /* strand pair (double-helix / two-body traces) */
+  --strand-a: #00ddff;
+  --strand-b: #ff5da2;
+
+  /* ---- ORG · TPSA / Problem Solving Association CLG ---- */
+  --tpsa-blue:  #597bb0;
+  --tpsa-blue-hover: #aac5db;
+  --ps-green:   #32e875;
+
+  /* ---- semantic aliases ---- */
+  --surface-page:        var(--off-white);
+  --surface-card:        var(--white);
+  --surface-panel:       var(--panel);
+  --surface-panel-page:  var(--bg);
+  --surface-inset:       var(--off-white);
+
+  --text-body:      var(--ink);
+  --text-heading:   var(--red-primary);
+  --text-on-red:    var(--off-white);
+  --text-on-panel:  var(--text);
+  --text-label:     var(--text-dim);
+
+  --accent:            var(--red-primary);
+  --accent-strong:     var(--red-dark);
+  --accent-soft:       var(--pink-light);
+  --link:              var(--red-primary);
+  --link-hover:        var(--pink-light);
+  --focus-ring:        var(--red-primary);
+
+  /* instrument interactive accent — red-forward to unify with Paper mode */
+  --inst-accent:        var(--red-bright);
+  --inst-accent-strong: var(--red-primary);
+  --inst-heading:       var(--pink-light);
+
+  /* instrument data channels — primary trace is red; the rest are
+     secondary series colours for multi-line plots */
+  --data-primary:   var(--red-bright);
+  --data-secondary: var(--neon-orange);
+  --data-warn:      var(--neon-orange);
+  --data-ok:        var(--neon-green);
+  --data-danger:    var(--neon-red);
+  --data-cool:      var(--neon-cyan);
+
+  /* signature gradient — hero, featured cards, badges */
+  --grad-brand: linear-gradient(135deg, var(--red-primary), var(--red-dark));
+
+  /* ---- typography ---- */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: var(--font-sans);
+  --font-body:    var(--font-sans);
+  --font-ui:      var(--font-sans);
+  --font-data:    var(--font-mono);
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-black:    800;
+
+  /* PAPER type scale */
+  --fs-hero:      3.5rem;
+  --fs-title:     3rem;
+  --fs-h1:        2.2rem;
+  --fs-h2:        2rem;
+  --fs-h3:        1.25rem;
+  --fs-lead:      1.5rem;
+  --fs-body:      1rem;
+  --fs-small:     0.875rem;
+  --fs-tag:       0.85rem;
+
+  /* INSTRUMENT type scale */
+  --fs-inst-title:   15px;
+  --fs-inst-body:    13px;
+  --fs-inst-value:   14px;
+  --fs-inst-small:   12px;
+  --fs-inst-eyebrow: 10px;
+
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
+  --lh-normal:  1.6;
+  --lh-data:    1.8;
+
+  --ls-eyebrow: 1.5px;
+  --ls-caps:    1px;
+  --ls-tight:   -0.01em;
+
+  /* ---- spacing & radius ---- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.5rem;
+  --space-6:  2rem;
+  --space-8:  3rem;
+  --space-10: 4rem;
+  --space-12: 6rem;
+
+  --pad-card:      1.5rem;
+  --pad-panel:     20px;
+  --gap-stack:     1.5rem;
+  --gap-inline:    2rem;
+  --section-gap:   6rem;
+  --container-max: 1200px;
+  --reading-max:   1000px;
+
+  --radius-xs:   6px;
+  --radius-sm:   8px;
+  --radius-md:   9px;
+  --radius-lg:   14px;
+  --radius-pill: 25px;
+  --radius-tag:  15px;
+  --radius-round: 50%;
+
+  --border-hair:   1px solid var(--border);
+  --border-accent: 4px solid var(--red-primary);
+  --border-panel:  1px solid rgba(255, 255, 255, 0.12);
+
+  /* ---- elevation & motion ---- */
+  --shadow-sm:  0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md:  0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-lg:  0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-red: 0 6px 20px rgba(214, 64, 69, 0.3);
+
+  --shadow-panel: 0 10px 40px rgba(0, 0, 0, 0.5);
+  --shadow-mode-active: 0 4px 18px rgba(214, 64, 69, 0.35);
+  --glow-red:   0 0 8px rgba(240, 85, 90, 0.4);
+  --glow-cyan:  0 0 6px rgba(34, 211, 238, 0.5);
+
+  --glass-bg:   rgba(10, 12, 20, 0.78);
+  --glass-blur: blur(12px);
+
+  --dur-fast:   0.18s;
+  --dur-base:   0.3s;
+  --dur-slow:   0.6s;
+  --dur-enter:  0.8s;
+
+  --ease-standard: ease;
+  --ease-out:      ease-out;
+  --ease-in-out:   ease-in-out;
+
+  --lift-card:  translateY(-5px);
+  --lift-btn:   translateY(-2px);
+  --nudge-x:    translateX(10px);
+  --press:      translateY(1px);
+}
+
+/* ---- keyframes reused across the system ---- */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

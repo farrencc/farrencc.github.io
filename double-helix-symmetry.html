@@ -5,26 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Double Helix &mdash; Screw Symmetry</title>
+    <link rel="icon" type="image/svg+xml" href="assets/monogram.svg">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/site.css">
     <style>
-        :root {
-            --primary-red: #d64045;
-            --light-pink: #ff9eaa;
-            --off-white: #f7f7f2;
-            --dark-red: #851d41;
-            --strand-a: #00ddff;
-            --strand-b: #ff5da2;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
             width: 100%; height: 100%;
             overflow: hidden;
-            background: #05070d;
-            color: #f7f7f2;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--void);
+            color: var(--off-white);
+            font-family: var(--font-ui);
         }
         #canvas-host { position: fixed; inset: 0; }
 
-        /* ---- Control panel ---- */
+        /* ---- Control panel (glass, floats over the scene) ---- */
         .panel {
             position: fixed;
             top: 18px; left: 18px;
@@ -32,73 +26,52 @@
             max-width: calc(100vw - 36px);
             max-height: calc(100vh - 36px);
             overflow-y: auto;
-            background: rgba(10, 12, 20, 0.78);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 14px;
             padding: 20px 20px 16px;
             z-index: 20;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .panel .title-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .panel .title-row img {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
         }
         .panel h1 {
             font-size: 1.15rem;
-            font-weight: 700;
+            font-weight: var(--fw-bold);
             letter-spacing: 0.2px;
             margin-bottom: 2px;
         }
         .panel .sub {
             font-size: 0.78rem;
-            color: var(--light-pink);
+            color: var(--pink-light);
             margin-bottom: 14px;
-            font-weight: 500;
+            font-weight: var(--fw-medium);
         }
         .mode-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-        .mode-btn {
-            text-align: left;
-            border: 1px solid rgba(255,255,255,0.18);
-            background: rgba(255,255,255,0.04);
-            color: #f7f7f2;
-            padding: 11px 13px;
-            border-radius: 9px;
-            cursor: pointer;
-            font-size: 0.86rem;
-            font-weight: 600;
-            transition: all 0.18s ease;
-            line-height: 1.25;
-        }
-        .mode-btn small {
-            display: block;
-            font-weight: 400;
-            font-size: 0.72rem;
-            color: rgba(247,247,242,0.6);
-            margin-top: 3px;
-        }
-        .mode-btn:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); }
-        .mode-btn.active {
-            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-            border-color: var(--light-pink);
-            box-shadow: 0 4px 18px rgba(214,64,69,0.35);
-        }
-        .mode-btn.active small { color: rgba(255,255,255,0.85); }
 
         .row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
         .row label { font-size: 0.8rem; color: rgba(247,247,242,0.85); min-width: 78px; }
-        input[type=range] { flex: 1; accent-color: var(--primary-red); }
+        .panel input[type=range] { flex: 1; width: auto; }
         .btn-row { display: flex; gap: 8px; margin-top: 6px; }
         .small-btn {
             flex: 1;
             border: 1px solid rgba(255,255,255,0.18);
             background: rgba(255,255,255,0.05);
-            color: #f7f7f2;
+            color: var(--off-white);
             padding: 8px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
+            font-family: var(--font-ui);
             font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.18s ease;
+            font-weight: var(--fw-semibold);
+            transition: all var(--dur-fast) var(--ease-standard);
         }
         .small-btn:hover { background: rgba(255,255,255,0.1); }
+        .small-btn:active { transform: var(--press); }
 
         .hud {
             margin-top: 14px;
@@ -110,7 +83,7 @@
             gap: 6px 10px;
         }
         .hud .k { color: rgba(247,247,242,0.55); }
-        .hud .v { color: var(--strand-a); font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+        .hud .v { color: var(--strand-a); font-variant-numeric: tabular-nums; font-weight: var(--fw-semibold); text-align: right; font-family: var(--font-data); }
 
         .explain {
             margin-top: 14px;
@@ -120,17 +93,19 @@
             line-height: 1.5;
             color: rgba(247,247,242,0.82);
         }
-        .explain b { color: var(--light-pink); }
-        .verdict {
-            margin-top: 10px;
-            padding: 9px 11px;
-            border-radius: 8px;
-            font-size: 0.78rem;
-            line-height: 1.4;
-            font-weight: 500;
+        .explain b { color: var(--pink-light); }
+        .verdict { margin-top: 10px; }
+
+        .back-link-inst {
+            display: inline-block;
+            margin-top: 12px;
+            font-family: var(--font-data);
+            font-size: 11px;
+            color: rgba(247,247,242,0.45);
+            text-decoration: none;
+            transition: color var(--dur-fast) var(--ease-standard);
         }
-        .verdict.moving { background: rgba(214,64,69,0.18); border: 1px solid rgba(214,64,69,0.5); }
-        .verdict.frozen { background: rgba(0,221,255,0.12); border: 1px solid rgba(0,221,255,0.45); }
+        .back-link-inst:hover { color: var(--pink-light); }
 
         .hint {
             position: fixed;
@@ -147,7 +122,8 @@
             z-index: 20;
             background: rgba(10,12,20,0.7);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.12);
+            -webkit-backdrop-filter: blur(10px);
+            border: var(--border-panel);
             border-radius: 10px;
             padding: 10px 13px;
             font-size: 0.75rem;
@@ -159,14 +135,17 @@
         window.MathJax = { tex: { inlineMath: [['\\(', '\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] } };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
-<body>
+<body class="instrument">
     <div id="canvas-host"></div>
 
-    <div class="panel">
-        <h1>The Double Helix</h1>
+    <div class="panel glass-panel">
+        <div class="title-row">
+            <img src="assets/monogram-light.svg" alt="⟨C⟩ monogram">
+            <h1>The Double Helix</h1>
+        </div>
         <div class="sub">Screw symmetry &mdash; Q1, Part 7 (helical solenoid)</div>
 
         <div class="mode-group">
@@ -211,11 +190,13 @@
             \(k=2\pi/d\). By Noether's theorem the conserved quantity is
             \(Q=\vec p\cdot\vec a = p_z + k\,J_z\).
         </div>
+
+        <a class="back-link-inst" href="index.html">&larr; back to portfolio</a>
     </div>
 
     <div class="legend">
-        <div><span class="dot" style="background:#00ddff"></span>Strand A</div>
-        <div><span class="dot" style="background:#ff5da2"></span>Strand B</div>
+        <div><span class="dot" style="background:var(--strand-a)"></span>Strand A</div>
+        <div><span class="dot" style="background:var(--strand-b)"></span>Strand B</div>
         <div><span class="dot" style="background:#ffd000"></span>Generator \(\vec a\)</div>
         <div><span class="dot" style="background:#8899bb"></span>Reference dust</div>
     </div>

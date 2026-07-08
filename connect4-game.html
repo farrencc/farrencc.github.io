@@ -4,528 +4,444 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connect 4 Torus - Casey Farren-Colloty</title>
+    <link rel="icon" type="image/svg+xml" href="assets/monogram.svg">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/site.css">
     <style>
-        :root {
-            --primary-red: #d64045;
-            --light-pink: #ff9eaa;
-            --off-white: #f7f7f2;
-            --dark-red: #851d41;
-            --text-dark: #2d232e;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-
         body {
-            background-color: var(--off-white);
-            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            font-family: var(--font-ui);
+        }
+
+        .back-link-inst {
+            display: inline-block;
+            margin-top: 10px;
+            font-family: var(--font-data);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color var(--dur-fast) var(--ease-standard);
+        }
+
+        .back-link-inst:hover { color: var(--inst-heading); }
+
+        .readout-value.pink { color: var(--pink-light); }
+
+        .rules-section { display: none; }
+        .rules-section.show { display: block; }
+
+        .rules-section ul {
+            margin-left: 1.1rem;
+            font-size: var(--fs-inst-small);
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        .rules-section strong { color: var(--inst-heading); font-weight: var(--fw-semibold); }
+
+        .origin-text {
+            font-size: var(--fs-inst-small);
+            color: var(--text-dim);
             line-height: 1.6;
-            padding: 2rem;
-            min-height: 100vh;
+        }
+
+        .origin-text strong { color: var(--text); }
+
+        /* ================= board area - the void, same grid as the hero ================= */
+        .board-area {
+            flex: 1;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .game-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 2rem;
-            max-width: 800px;
-            width: 100%;
-        }
-
-        .game-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .game-title {
-            font-size: 2.5rem;
-            color: var(--primary-red);
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-
-        .game-subtitle {
-            color: var(--text-dark);
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-        }
-
-        .game-description {
-            background: var(--off-white);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-red);
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
-        }
-
-        .introduction-section {
-            margin-bottom: 2rem;
-        }
-
-        .introduction-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border: 1px solid rgba(214, 64, 69, 0.1);
-        }
-
-        .introduction-content p {
-            line-height: 1.7;
-            color: var(--text-dark);
-        }
-
-        .introduction-content strong {
-            color: var(--primary-red);
-        }
-
-        .game-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .current-player {
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .player-indicator {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 3px solid var(--text-dark);
+            gap: 14px;
+            background: var(--void);
+            background-image:
+                linear-gradient(rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
+            background-size: 64px 64px;
+            overflow: hidden;
         }
 
-        .player1 {
-            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-            color: white;
+        .board-area::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 55% at 50% 45%, rgba(214, 64, 69, 0.07), transparent 70%);
+            pointer-events: none;
         }
 
-        .player2 {
-            background: linear-gradient(135deg, var(--light-pink), var(--primary-red));
-            color: var(--dark-red);
+        .board-status {
+            font-family: var(--font-data);
+            font-size: 15px;
+            font-weight: var(--fw-semibold);
+            color: var(--inst-accent);
+            min-height: 1.4em;
+            z-index: 1;
         }
 
-        .reset-button {
-            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+        .board-status.winner { animation: celebrate 0.5s var(--ease-in-out); }
+
+        @keyframes celebrate {
+            0%   { transform: scale(1); }
+            50%  { transform: scale(1.12); }
+            100% { transform: scale(1); }
         }
 
-        .reset-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(214, 64, 69, 0.3);
+        .board-panel {
+            position: relative;
+            background: var(--panel);
+            border: var(--border-hair);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-panel);
+            padding: 16px;
+            z-index: 1;
         }
 
         .game-board {
+            --cell: clamp(32px, 7vmin, 58px);
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(7, var(--cell));
             gap: 8px;
-            background: var(--text-dark);
-            padding: 15px;
-            border-radius: 12px;
-            margin: 2rem 0;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .cell {
-            aspect-ratio: 1;
-            background: white;
+            width: var(--cell);
+            height: var(--cell);
             border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            background: rgba(247, 247, 242, 0.05);
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            position: relative;
-            border: 2px solid transparent;
-            min-height: 60px;
+            font-family: var(--font-data);
+            font-size: calc(var(--cell) * 0.44);
+            font-weight: var(--fw-semibold);
+            cursor: pointer;
+            transition: all var(--dur-fast) var(--ease-standard);
         }
 
         .cell:hover:not(.occupied) {
-            background: var(--off-white);
-            transform: scale(1.05);
-            border-color: var(--primary-red);
+            border-color: var(--inst-accent);
+            background: rgba(240, 85, 90, 0.1);
+            transform: scale(1.08);
         }
 
-        .cell.occupied {
-            cursor: not-allowed;
-        }
+        .cell.occupied { cursor: not-allowed; }
 
         .cell.player1 {
-            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-            color: white;
-            border-color: var(--dark-red);
+            background: var(--grad-brand);
+            border-color: rgba(240, 85, 90, 0.7);
+            color: var(--off-white);
+            box-shadow: 0 0 12px rgba(214, 64, 69, 0.45);
         }
 
         .cell.player2 {
-            background: linear-gradient(135deg, var(--light-pink), var(--primary-red));
-            color: var(--dark-red);
-            border-color: var(--primary-red);
+            background: linear-gradient(135deg, var(--pink-light), var(--red-primary));
+            border-color: rgba(255, 158, 170, 0.7);
+            color: var(--red-dark);
+            box-shadow: 0 0 12px rgba(255, 158, 170, 0.3);
         }
 
         .cell.winning {
             animation: pulse 1s infinite;
-            box-shadow: 0 0 20px var(--primary-red);
+            box-shadow: 0 0 20px var(--red-bright);
         }
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50%      { transform: scale(1.12); }
         }
 
-        .game-status {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 1rem 0;
-            min-height: 2rem;
-        }
-
-        .winner {
-            color: var(--primary-red);
-            animation: celebrate 0.5s ease-in-out;
-        }
-
-        @keyframes celebrate {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .rules-toggle {
-            background: none;
-            border: 2px solid var(--primary-red);
-            color: var(--primary-red);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .rules-toggle:hover {
-            background: var(--primary-red);
-            color: white;
-        }
-
-        .rules-content {
-            display: none;
-            background: var(--off-white);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-
-        .rules-content.show {
-            display: block;
-        }
-
-        .back-link {
+        .board-hud {
             position: absolute;
-            top: 2rem;
-            left: 2rem;
+            bottom: 16px;
+            right: 20px;
+            font-family: var(--font-data);
+            font-size: 10.5px;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            text-align: right;
+            line-height: 1.8;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        .back-button {
-            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
-            color: white;
-            text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            font-weight: 500;
+        @media (max-width: 800px) {
+            body { flex-direction: column; overflow: auto; height: auto; min-height: 100vh; }
+            .inst-sidebar { width: 100%; min-width: unset; max-height: none; border-right: none; border-bottom: var(--border-hair); }
+            .board-area { min-height: 70vh; padding: 2rem 0.5rem; }
+            .board-hud { display: none; }
         }
 
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(214, 64, 69, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            .game-title {
-                font-size: 2rem;
-            }
-            
-            .game-info {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .cell {
-                font-size: 1.5rem;
-                min-height: 50px;
-            }
-            
-            .back-link {
-                position: static;
-                margin-bottom: 1rem;
-                text-align: center;
-            }
+        @media (prefers-reduced-motion: reduce) {
+            .cell.winning { animation: none; }
+            .board-status.winner { animation: none; }
         }
     </style>
 </head>
-<body>
-    <div class="back-link">
-        <a href="index.html" class="back-button">← Back to Portfolio</a>
+<body class="instrument">
+
+<div class="inst-sidebar">
+    <div class="panel-header">
+        <div class="panel-title-row">
+            <img src="assets/monogram-light.svg" alt="⟨C⟩ monogram">
+            <h1>Connect 4 Torus</h1>
+        </div>
+        <p>Connect Four with <strong>no gravity</strong> and <strong>periodic boundary conditions</strong> - get four in a row on a board that wraps in both directions.</p>
+        <a class="back-link-inst" href="index.html">← back to portfolio</a>
     </div>
 
-    <div class="game-container">
-        <div class="game-header">
-            <h1 class="game-title">Connect 4 Torus</h1>
-            <p class="game-subtitle">Connect Four with Periodic Boundary Conditions</p>
-            
-            <div class="game-description">
-                <strong>How to Play:</strong> Get four pieces in a row to win! Unlike regular Connect 4, you can place pieces anywhere on the board (no gravity). The board wraps around - pieces at the edges connect to pieces on the opposite edges, creating a torus topology.
+    <!-- Live match readouts -->
+    <div class="inst-section">
+        <div class="section-title">Match</div>
+        <div class="readout-grid">
+            <div class="readout">
+                <div class="readout-label">Current player</div>
+                <div class="readout-value" id="ro-player">× you</div>
+            </div>
+            <div class="readout">
+                <div class="readout-label">Status</div>
+                <div class="readout-value" id="ro-status">in play</div>
+            </div>
+            <div class="readout">
+                <div class="readout-label">Moves</div>
+                <div class="readout-value orange" id="ro-moves">0</div>
+            </div>
+            <div class="readout">
+                <div class="readout-label">Cells filled</div>
+                <div class="readout-value purple" id="ro-filled">0/42</div>
             </div>
         </div>
+    </div>
 
-        <div class="introduction-section">
-            <div class="introduction-content">
-                <h3 style="color: var(--primary-red); margin-bottom: 1rem;">Tic-Tac-Torus (Formerly "Connect 4 with no gravity and periodic boundary conditions")</h3>
-                <p style="margin-bottom: 1rem;">
-                    I first encountered this variant of Connect 4 during my summer internship at Oxford's Rudolf Peierls Centre for Theoretical Physics. It was <strong>Param Luhadiya</strong> and <strong>Om Gupta</strong>, fellow interns, who introduced me to this ingenious perhaps even sadistic twist on the classic game. 
-                </p>
-            </div>
+    <!-- Controls -->
+    <div class="inst-section">
+        <div class="btn-row">
+            <button class="inst-btn primary" id="btnNew">↺ New Game</button>
+            <button class="inst-btn" id="btnRules">? Rules</button>
         </div>
+    </div>
 
-        <div class="game-info">
-            <div class="current-player">
-                <span>Current Player:</span>
-                <div class="player-indicator player1" id="playerIndicator">×</div>
-                <span id="playerName">Player 1 (×)</span>
-            </div>
-            <button class="reset-button" onclick="resetGame()">New Game</button>
-            <button class="rules-toggle" onclick="toggleRules()">Rules & Strategy</button>
-        </div>
+    <!-- Rules -->
+    <div class="inst-section rules-section" id="rulesSection">
+        <div class="section-title">Rules &amp; Strategy</div>
+        <ul>
+            <li><strong>Objective:</strong> get 4 pieces in a row - horizontal, vertical, or diagonal.</li>
+            <li><strong>No gravity:</strong> place pieces anywhere on the board.</li>
+            <li><strong>Wrapping:</strong> edges connect - rightmost column to leftmost, top row to bottom. Visualising the wrap is the whole skill.</li>
+            <li><strong>Strategy:</strong> think across edges - a line can wrap around!</li>
+            <li><strong>Advanced:</strong> every cell has identical connectivity on a torus - there are no corners to hide in.</li>
+        </ul>
+    </div>
 
-        <div class="rules-content" id="rulesContent">
-            <h3 style="color: var(--primary-red); margin-bottom: 1rem;">Rules & Strategy Tips</h3>
-            <ul style="margin-left: 1.5rem; line-height: 1.8;">
-                <li><strong>Objective:</strong> Get 4 pieces in a row (horizontal, vertical, or diagonal)</li>
-                <li><strong>No Gravity:</strong> Place pieces anywhere on the board</li>
-                <li><strong>Wrapping:</strong> Board edges connect - rightmost column connects to leftmost, top row connects to bottom</li>
-                <li><strong>Strategy:</strong> Think about connections across edges - a line can wrap around multiple times!</li>
-                <li><strong>Advanced:</strong> Corner pieces have maximum connectivity due to wrapping in both directions</li>
-            </ul>
-        </div>
+    <!-- Origin -->
+    <div class="inst-section" style="border-bottom: none;">
+        <div class="section-title">Origin</div>
+        <p class="origin-text">
+            Tic-Tac-Torus - formerly "Connect 4 with no gravity and periodic boundary conditions". I first encountered this variant during my summer internship at Oxford's Rudolf Peierls Centre for Theoretical Physics. It was <strong>Param Luhadiya</strong> and <strong>Om Gupta</strong>, fellow interns, who introduced me to this ingenious perhaps even sadistic twist on the classic game.
+        </p>
+    </div>
+</div>
 
-        <div class="game-status" id="gameStatus"></div>
-
+<div class="board-area">
+    <div class="board-status" id="gameStatus"></div>
+    <div class="board-panel">
         <div class="game-board" id="gameBoard"></div>
     </div>
+    <div class="board-hud">
+        <div>boundary: periodic (torus)</div>
+        <div>the wrap is yours to visualise</div>
+    </div>
+</div>
 
-    <script>
-        class Connect4Torus {
-            constructor() {
-                this.rows = 6;
-                this.cols = 7;
-                this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
-                this.currentPlayer = 1; // 1 for X, 2 for O
-                this.gameOver = false;
-                this.winner = null;
-                this.winningCells = [];
-                this.initializeBoard();
-            }
+<script>
+    class Connect4Torus {
+        constructor() {
+            this.rows = 6;
+            this.cols = 7;
+            this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
+            this.currentPlayer = 1; // 1 for ×, 2 for ○
+            this.gameOver = false;
+            this.winner = null;
+            this.winningCells = [];
+            this.moves = 0;
+            this.initializeBoard();
+        }
 
-            initializeBoard() {
-                const gameBoard = document.getElementById('gameBoard');
-                gameBoard.innerHTML = '';
-                
-                for (let row = 0; row < this.rows; row++) {
-                    for (let col = 0; col < this.cols; col++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'cell';
-                        cell.dataset.row = row;
-                        cell.dataset.col = col;
-                        cell.addEventListener('click', () => this.handleCellClick(row, col));
-                        gameBoard.appendChild(cell);
-                    }
-                }
-                this.updateDisplay();
-            }
+        initializeBoard() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
 
-            handleCellClick(row, col) {
-                if (this.gameOver || this.board[row][col] !== 0) {
-                    return;
-                }
-
-                this.board[row][col] = this.currentPlayer;
-                
-                if (this.checkWin(row, col)) {
-                    this.gameOver = true;
-                    this.winner = this.currentPlayer;
-                } else if (this.isBoardFull()) {
-                    this.gameOver = true;
-                    this.winner = 0; // Tie
-                } else {
-                    this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
-                }
-
-                this.updateDisplay();
-            }
-
-            checkWin(row, col) {
-                const player = this.board[row][col];
-                
-                // Check all 4 directions
-                const directions = [
-                    [0, 1],  // horizontal
-                    [1, 0],  // vertical
-                    [1, 1],  // diagonal /
-                    [1, -1]  // diagonal \
-                ];
-
-                for (let [dr, dc] of directions) {
-                    const winningCells = this.checkDirection(row, col, dr, dc, player);
-                    if (winningCells.length >= 4) {
-                        this.winningCells = winningCells;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            checkDirection(startRow, startCol, dr, dc, player) {
-                let cells = [{row: startRow, col: startCol}]; // Include the current piece
-                
-                // Check forward direction
-                for (let i = 1; i < 4; i++) {
-                    const newRow = (startRow + i * dr + this.rows) % this.rows;
-                    const newCol = (startCol + i * dc + this.cols) % this.cols;
-                    
-                    if (this.board[newRow][newCol] === player) {
-                        cells.push({row: newRow, col: newCol});
-                    } else {
-                        break;
-                    }
-                }
-                
-                // Check backward direction
-                for (let i = 1; i < 4; i++) {
-                    const newRow = (startRow - i * dr + this.rows) % this.rows;
-                    const newCol = (startCol - i * dc + this.cols) % this.cols;
-                    
-                    if (this.board[newRow][newCol] === player) {
-                        cells.unshift({row: newRow, col: newCol});
-                    } else {
-                        break;
-                    }
-                }
-                
-                return cells;
-            }
-
-            isBoardFull() {
-                return this.board.every(row => row.every(cell => cell !== 0));
-            }
-
-            updateDisplay() {
-                // Update board display
-                const cells = document.querySelectorAll('.cell');
-                cells.forEach(cell => {
-                    const row = parseInt(cell.dataset.row);
-                    const col = parseInt(cell.dataset.col);
-                    const value = this.board[row][col];
-                    
+            for (let row = 0; row < this.rows; row++) {
+                for (let col = 0; col < this.cols; col++) {
+                    const cell = document.createElement('div');
                     cell.className = 'cell';
-                    if (value === 1) {
-                        cell.className += ' player1 occupied';
-                        cell.textContent = '×';
-                    } else if (value === 2) {
-                        cell.className += ' player2 occupied';
-                        cell.textContent = '○';
-                    } else {
-                        cell.textContent = '';
-                    }
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => this.handleCellClick(row, col));
+                    gameBoard.appendChild(cell);
+                }
+            }
+            this.updateDisplay();
+        }
 
-                    // Highlight winning cells
-                    if (this.winningCells.some(winCell => winCell.row === row && winCell.col === col)) {
-                        cell.className += ' winning';
-                    }
-                });
+        handleCellClick(row, col) {
+            if (this.gameOver || this.board[row][col] !== 0) {
+                return;
+            }
 
-                // Update player indicator
-                const playerIndicator = document.getElementById('playerIndicator');
-                const playerName = document.getElementById('playerName');
-                const gameStatus = document.getElementById('gameStatus');
+            this.board[row][col] = this.currentPlayer;
+            this.moves++;
 
-                if (this.gameOver) {
-                    if (this.winner === 0) {
-                        gameStatus.textContent = "It's a tie!";
-                        gameStatus.className = 'game-status';
-                    } else {
-                        const winnerName = this.winner === 1 ? 'Player 1 (×)' : 'Player 2 (○)';
-                        gameStatus.textContent = `🎉 ${winnerName} Wins! 🎉`;
-                        gameStatus.className = 'game-status winner';
-                    }
+            if (this.checkWin(row, col)) {
+                this.gameOver = true;
+                this.winner = this.currentPlayer;
+            } else if (this.isBoardFull()) {
+                this.gameOver = true;
+                this.winner = 0; // Tie
+            } else {
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+            }
+
+            this.updateDisplay();
+        }
+
+        checkWin(row, col) {
+            const player = this.board[row][col];
+
+            // Check all 4 directions
+            const directions = [
+                [0, 1],  // horizontal
+                [1, 0],  // vertical
+                [1, 1],  // diagonal /
+                [1, -1]  // diagonal \
+            ];
+
+            for (let [dr, dc] of directions) {
+                const winningCells = this.checkDirection(row, col, dr, dc, player);
+                if (winningCells.length >= 4) {
+                    this.winningCells = winningCells;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        checkDirection(startRow, startCol, dr, dc, player) {
+            let cells = [{row: startRow, col: startCol}]; // Include the current piece
+
+            // Check forward direction
+            for (let i = 1; i < 4; i++) {
+                const newRow = (startRow + i * dr + this.rows) % this.rows;
+                const newCol = (startCol + i * dc + this.cols) % this.cols;
+
+                if (this.board[newRow][newCol] === player) {
+                    cells.push({row: newRow, col: newCol});
                 } else {
-                    gameStatus.textContent = '';
-                    gameStatus.className = 'game-status';
-                    
-                    if (this.currentPlayer === 1) {
-                        playerIndicator.className = 'player-indicator player1';
-                        playerIndicator.textContent = '×';
-                        playerName.textContent = 'Player 1 (×)';
-                    } else {
-                        playerIndicator.className = 'player-indicator player2';
-                        playerIndicator.textContent = '○';
-                        playerName.textContent = 'Player 2 (○)';
-                    }
+                    break;
+                }
+            }
+
+            // Check backward direction
+            for (let i = 1; i < 4; i++) {
+                const newRow = (startRow - i * dr + this.rows) % this.rows;
+                const newCol = (startCol - i * dc + this.cols) % this.cols;
+
+                if (this.board[newRow][newCol] === player) {
+                    cells.unshift({row: newRow, col: newCol});
+                } else {
+                    break;
+                }
+            }
+
+            return cells;
+        }
+
+        isBoardFull() {
+            return this.board.every(row => row.every(cell => cell !== 0));
+        }
+
+        updateDisplay() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                const value = this.board[row][col];
+
+                cell.className = 'cell';
+                if (value === 1) {
+                    cell.className += ' player1 occupied';
+                    cell.textContent = '×';
+                } else if (value === 2) {
+                    cell.className += ' player2 occupied';
+                    cell.textContent = '○';
+                } else {
+                    cell.textContent = '';
+                }
+
+                // Highlight winning cells - a wrapped line pulses split across the edges
+                if (this.winningCells.some(winCell => winCell.row === row && winCell.col === col)) {
+                    cell.className += ' winning';
+                }
+            });
+
+            // Sidebar readouts
+            const roPlayer = document.getElementById('ro-player');
+            const roStatus = document.getElementById('ro-status');
+            const roMoves = document.getElementById('ro-moves');
+            const roFilled = document.getElementById('ro-filled');
+            const gameStatus = document.getElementById('gameStatus');
+
+            roMoves.textContent = this.moves;
+            const filled = this.board.flat().filter(v => v !== 0).length;
+            roFilled.textContent = filled + '/' + (this.rows * this.cols);
+
+            if (this.gameOver) {
+                if (this.winner === 0) {
+                    roStatus.textContent = 'tie';
+                    roStatus.className = 'readout-value orange';
+                    gameStatus.textContent = "It's a tie - the torus is full.";
+                    gameStatus.className = 'board-status';
+                } else {
+                    const sym = this.winner === 1 ? '×' : '○';
+                    roStatus.textContent = sym + ' wins';
+                    roStatus.className = 'readout-value' + (this.winner === 2 ? ' pink' : '');
+                    gameStatus.textContent = 'Player ' + this.winner + ' (' + sym + ') wins!';
+                    gameStatus.className = 'board-status winner';
+                }
+                roPlayer.textContent = '-';
+                roPlayer.className = 'readout-value';
+            } else {
+                gameStatus.textContent = '';
+                gameStatus.className = 'board-status';
+                roStatus.textContent = 'in play';
+                roStatus.className = 'readout-value green';
+                if (this.currentPlayer === 1) {
+                    roPlayer.textContent = '× to move';
+                    roPlayer.className = 'readout-value';
+                } else {
+                    roPlayer.textContent = '○ to move';
+                    roPlayer.className = 'readout-value pink';
                 }
             }
         }
+    }
 
-        // Global game instance
-        let game = new Connect4Torus();
+    // Global game instance
+    let game = new Connect4Torus();
 
-        function resetGame() {
-            game = new Connect4Torus();
-        }
+    document.getElementById('btnNew').addEventListener('click', () => {
+        game = new Connect4Torus();
+    });
 
-        function toggleRules() {
-            const rulesContent = document.getElementById('rulesContent');
-            rulesContent.classList.toggle('show');
-        }
-
-        // Initialize the game when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            game = new Connect4Torus();
-        });
-    </script>
+    document.getElementById('btnRules').addEventListener('click', () => {
+        document.getElementById('rulesSection').classList.toggle('show');
+    });
+</script>
 </body>
 </html>
