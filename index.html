@@ -388,8 +388,14 @@
             opacity: 0;
             transition: max-height var(--dur-base) var(--ease-out), opacity var(--dur-base) var(--ease-out);
         }
-        .research-item.expanded .research-content { max-height: 520px; opacity: 1; }
+        /* No fixed cap here: a hardcoded max-height clips the longer entries
+           (their tags and file badges fall below the cut). toggleResearch()
+           measures the real height for the transition, then releases it to
+           `none`, which is also the fallback if that script never runs. */
+        .research-item.expanded .research-content { max-height: none; opacity: 1; }
         .research-details { padding-top: 1rem; border-top: 1px solid rgba(0, 0, 0, 0.1); margin-top: 0.5rem; }
+        /* the global reset zeroes p margins, so multi-paragraph entries need their own gap */
+        .research-details p + p { margin-top: 0.85rem; }
         .research-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
 
         /* ================= THE LAB - dark instrument band ================= */
@@ -840,6 +846,26 @@
                             <span class="research-tag">Bethe Ansatz</span>
                             <span class="research-tag">Hubbard Model</span>
                             <span class="research-tag">Mathematical Physics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="research-item" onclick="toggleResearch(this)">
+                <div class="research-title">
+                    <h3><span class="commit-hash">e5a4b18</span>2026 - Hamilton Trust Project (Supervisor)</h3>
+                    <div class="research-expand-icon"></div>
+                </div>
+                <div class="research-content">
+                    <div class="research-details">
+                        <p>Having done a Hamilton Trust internship myself, I came back to the programme on the other side of the desk, supervising Daniel Barron and O. Daniel O'Carroll on "Stochastic Systems &amp; Population Dynamics". The question we set was whether the machinery of non-equilibrium physics can model a population as a classical stochastic process rather than as a deterministic rate equation. The route runs through the <strong>Keldysh-Schwinger formalism</strong>: quantum by construction, but in its classical limit it encodes exactly the fluctuating dynamics we wanted, with the Keldysh action yielding a <strong>Langevin equation</strong> driven by Gaussian white noise via a Hubbard-Stratonovich transformation, and from there the <strong>Fokker-Planck equation</strong> for the probability distribution itself. Births, deaths, immigration and emigration become noisy reaction terms on a lattice.</p>
+                        <p>What makes the detour worth taking is <em>metastability</em>. Noise-induced stabilisation - already documented in ecological and plant-biology models - lets a population sit in a configuration that the deterministic equations call unstable and stay there for an exponentially long escape time. A mean-field treatment simply cannot produce that behaviour. Over the project the students built up the Green's functions of the formalism in frequency-momentum space, reproduced the noise-induced stabilisation result of Parker et al. by reading the Fokker-Planck escape problem as a lowest-eigenvalue calculation, and set out how a lattice model of human migration could be constructed the same way. It was written up as a report, a talk and a poster; the population model itself remains a proof of concept, and that is the honest state of it.</p>
+                        <div class="research-tags">
+                            <span class="research-tag">Non-Equilibrium Physics</span>
+                            <span class="research-tag">Keldysh Field Theory</span>
+                            <span class="research-tag">Stochastic Processes</span>
+                            <span class="research-tag">Population Dynamics</span>
+                            <span class="research-tag">Supervision</span>
                         </div>
                     </div>
                 </div>
@@ -1499,20 +1525,67 @@
     requestAnimationFrame(miniFrame);
 })();
 
-/* research accordions (global - used by inline onclick) */
-function toggleResearch(element) {
-    element.classList.toggle('expanded');
-    const content = element.querySelector('.research-content');
-    if (element.classList.contains('expanded')) {
-        content.style.opacity = '0';
-        setTimeout(() => { content.style.opacity = '1'; }, 50);
-    }
-    document.querySelectorAll('.research-item').forEach((item) => {
-        if (item !== element && item.classList.contains('expanded')) {
-            item.classList.remove('expanded');
+/* research accordions (global - used by inline onclick)
+   max-height is animated, so it has to be a number for the transition to run -
+   but any fixed number clips the longer entries. So: measure the content,
+   animate to that pixel height, then hand the element back to `max-height: none`
+   once the transition lands. After that the panel is free to grow (tag wrapping,
+   a resize, late-loading fonts) without ever being cut off. */
+(function () {
+    const OPEN_FALLBACK_MS = 500;   /* > --dur-base, in case transitionend is missed */
+
+    function contentOf(item) { return item && item.querySelector('.research-content'); }
+
+    function releaseHeight(content) {
+        /* only let go once the panel is actually open */
+        if (content.closest('.research-item').classList.contains('expanded')) {
+            content.style.maxHeight = 'none';
         }
+    }
+
+    function expand(item) {
+        const content = contentOf(item);
+        if (!content) return;
+        item.classList.add('expanded');
+        content.style.maxHeight = content.scrollHeight + 'px';
+
+        clearTimeout(content._openTimer);
+        content._openTimer = setTimeout(() => releaseHeight(content), OPEN_FALLBACK_MS);
+        if (!content._boundEnd) {
+            content._boundEnd = true;
+            content.addEventListener('transitionend', (e) => {
+                if (e.target === content && e.propertyName === 'max-height') releaseHeight(content);
+            });
+        }
+    }
+
+    function collapse(item) {
+        const content = contentOf(item);
+        if (!content) return;
+        clearTimeout(content._openTimer);
+        /* pin the current height first: `none` -> 0 has nothing to animate from */
+        content.style.maxHeight = content.scrollHeight + 'px';
+        void content.offsetHeight;                  /* force reflow */
+        item.classList.remove('expanded');
+        content.style.maxHeight = '0px';
+    }
+
+    window.toggleResearch = function (element) {
+        const opening = !element.classList.contains('expanded');
+        document.querySelectorAll('.research-item.expanded').forEach((item) => {
+            if (item !== element) collapse(item);
+        });
+        if (opening) expand(element); else collapse(element);
+    };
+
+    /* a narrower window rewraps tags and prose; re-measure anything mid-animation */
+    window.addEventListener('resize', () => {
+        document.querySelectorAll('.research-item.expanded').forEach((item) => {
+            const content = contentOf(item);
+            if (content && content.style.maxHeight !== 'none') releaseHeight(content);
+        });
     });
-}
+})();
 </script>
 </body>
 </html>
