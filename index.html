@@ -602,6 +602,24 @@
 
         .material-card:hover { box-shadow: var(--shadow-md), 0 0 0 1px var(--red-tint-20); }
 
+        /* stands in for the "View Course Materials" link until a course has materials up */
+        .card-pending {
+            display: inline-block;
+            font-family: var(--font-data);
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .card-pending::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 0.5rem;
+            border-radius: 50%;
+            background: var(--red-primary);
+            vertical-align: middle;
+        }
+
         /* ---- research timeline - the rail fills as you scroll ---- */
         .timeline { position: relative; padding-left: 2.25rem; }
 
@@ -1007,8 +1025,14 @@
         <span class="margin-eq" style="top: 10%; right: 2%;">\( \vec{F} = m\vec{a} \)</span>
         <div class="section-eyebrow"><span class="ps">$</span> cat teaching.md</div>
         <h2 data-decode>Teaching</h2>
-        <p>I'm a firm believer of the importance of putting effort in to show the younger generation how interesting the world of science can be. As well as to show them that participating in this world is an achievable goal. The opportunity arose in the academic year 2023/24 to do just that and teach at the Centre for Talented Youth Ireland. Specifically, the 8-12 year old course. Here are some of the materials for these courses:</p>
+        <p>I'm a firm believer of the importance of putting effort in to show the younger generation how interesting the world of science can be. As well as to show them that participating in this world is an achievable goal. The opportunity arose in the academic year 2023/24 to do just that and teach at the Centre for Talented Youth Ireland. Specifically, the 8-12 year old course. I returned to CTYI as an instructor in summer 2026, this time teaching Theoretical Physics. Here are some of the materials for these courses:</p>
         <div class="materials-grid">
+            <div class="material-card tilt">
+                <div class="card-path">~/teaching/theoretical-physics</div>
+                <h3>Theoretical Physics</h3>
+                <p>Taught at CTYI in summer 2026. An introduction to how theoretical physicists actually work: building models, following the mathematics where it leads, and testing what comes out against the world.</p>
+                <span class="card-pending">Materials coming soon</span>
+            </div>
             <div class="material-card tilt">
                 <div class="card-path">~/teaching/superhero-science</div>
                 <h3>Superhero Science</h3>
