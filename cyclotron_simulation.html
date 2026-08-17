@@ -247,7 +247,7 @@
     <div class="eq"><span class="hl">m ẍ = eB ẏ + eE</span>
 <span class="hl">m ÿ = −eB ẋ</span>
 
-Drift velocity:  <span class="or">v_drift = E/B  (ŷ direction)</span>
+Drift velocity:  <span class="or">v_drift = E×B/B² = −(E/B) ŷ</span>
 Cyclotron freq:  <span class="or">ωc = eB/m</span>
 Larmor radius:   <span class="or">rL = v⊥ / ωc</span></div>
     <div class="inst-legend">
@@ -275,7 +275,7 @@ Larmor radius:   <span class="or">rL = v⊥ / ωc</span></div>
 //   m ÿ = −eB ẋ
 //
 // Analytic solution (pure B + uniform E):
-//   Define ωc = eB/m, v_drift = E/B
+//   Define ωc = eB/m, v_drift = -E/B  (E×B/B² points along -ŷ here)
 //
 //   x(t) = x_gc(t) + R sin(ωc t + φ₀)
 //   y(t) = y_gc(t) + R cos(ωc t + φ₀)
@@ -314,7 +314,9 @@ function getParams() {
 
 function getDerivedQuantities(p) {
   const wc = p.em * p.B;              // ωc = eB/m = (e/m)*B
-  const vdrift = p.B > 0.001 ? p.E / p.B : 0;  // E×B drift = E/B in y-direction
+  // E×B drift = (E×B)/B².  With E = E x̂ and B = B ẑ, x̂ × ẑ = −ŷ, so the
+  // drift is −(E/B) ŷ.  Equivalently, ẍ = 0 in steady state ⇒ ẏ = −E/B.
+  const vdrift = p.B > 0.001 ? -p.E / p.B : 0;  // y-component of the drift
   return { wc, vdrift };
 }
 
@@ -359,12 +361,15 @@ function rk4Step(s, dt, p) {
 
 // ========== ANALYTIC SOLUTION ==========
 // EOM: ẍ = ωc ẏ + (e/m)E,  ÿ = -ωc ẋ
-// Let u = ẋ, w = ẏ - E/B.  Then u̇ = ωc·w, ẇ = -ωc·u.
+// Let u = ẋ, w = ẏ - vd  with vd = -E/B.  Then u̇ = ωc·w, ẇ = -ωc·u.
 // Let Z = u + iw. Then Ż = -iωc Z, so Z = Z₀ e^{-iωc t}
 // Z₀ = vx₀ + i(vy₀ - v_drift), |Z₀| = v_perp (speed in drift frame)
 //
-// x(t) = x₀ + (1/ωc)[vx₀ sin(ωc t) - (vy₀ - vd)(cos(ωc t) - 1)]
-// y(t) = y₀ + vd·t + (1/ωc)[vx₀(1 - cos(ωc t)) - (vy₀ - vd) sin(ωc t)]
+// u(t) = ẋ       = vx₀ cos(ωc t) + (vy₀ - vd) sin(ωc t)
+// w(t) = ẏ - vd  = (vy₀ - vd) cos(ωc t) - vx₀ sin(ωc t)
+//
+// x(t) = x₀ + (1/ωc)[vx₀ sin(ωc t) + (vy₀ - vd)(1 - cos(ωc t))]
+// y(t) = y₀ + vd·t + (1/ωc)[(vy₀ - vd) sin(ωc t) - vx₀(1 - cos(ωc t))]
 
 function analyticPos(t, p) {
   const { wc, vdrift } = getDerivedQuantities(p);
@@ -380,8 +385,8 @@ function analyticPos(t, p) {
   const s = Math.sin(wc * t);
   const wvy = p.vy0 - vd;
 
-  const x = p.x0 + (1/wc) * (p.vx0 * s - wvy * (c - 1));
-  const y = p.y0 + vd * t + (1/wc) * (p.vx0 * (1 - c) - wvy * s);
+  const x = p.x0 + (1/wc) * (p.vx0 * s + wvy * (1 - c));
+  const y = p.y0 + vd * t + (1/wc) * (wvy * s - p.vx0 * (1 - c));
   return { x, y };
 }
 
@@ -390,7 +395,9 @@ function guidingCenter(t, p) {
   if (wc < 1e-6) return { x: p.x0, y: p.y0 };
   const vd = vdrift;
   const wvy = p.vy0 - vd;
-  // Guiding center = position minus the gyration part
+  // Guiding center = position minus the gyration part, i.e. the zero-mean
+  // oscillating terms (1/ωc)[vx₀ s - wvy c] and (1/ωc)[wvy s + vx₀ c] dropped
+  // from x(t) and y(t) respectively.
   const xgc = p.x0 + wvy / wc;
   const ygc = p.y0 - p.vx0 / wc + vd * t;
   return { x: xgc, y: ygc };
@@ -550,14 +557,15 @@ function drawParticle(x, y, vx, vy) {
     ctx.moveTo(sx, sy);
     ctx.lineTo(ex, ey);
     ctx.stroke();
-    // Arrowhead
-    const angle = Math.atan2(-(vy), vx); // screen coords
+    // Arrowhead — wings are stepped BACK from the tip along the screen-space
+    // heading, so both components are subtracted (screen y already points down).
+    const angle = Math.atan2(-vy, vx); // screen coords
     const aLen = 8 * devicePixelRatio;
     ctx.fillStyle = 'rgba(34, 211, 238, 0.8)';
     ctx.beginPath();
     ctx.moveTo(ex, ey);
-    ctx.lineTo(ex - aLen * Math.cos(angle - 0.4), ey + aLen * Math.sin(angle - 0.4));
-    ctx.lineTo(ex - aLen * Math.cos(angle + 0.4), ey + aLen * Math.sin(angle + 0.4));
+    ctx.lineTo(ex - aLen * Math.cos(angle - 0.4), ey - aLen * Math.sin(angle - 0.4));
+    ctx.lineTo(ex - aLen * Math.cos(angle + 0.4), ey - aLen * Math.sin(angle + 0.4));
     ctx.closePath();
     ctx.fill();
   }
